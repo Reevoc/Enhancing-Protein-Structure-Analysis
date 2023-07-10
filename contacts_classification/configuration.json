@@ -1,0 +1,13 @@
+{
+  "dssp_file": "bin/dssp-2.3.0/mkdssp",
+  "rama_file": "ramachandran.dat",
+  "atchley_file": "atchley.tsv",
+  "distance_threshold": 3.5,
+  "sequence_separation": 3,
+  "rama_ss_ranges": [[-180, -180, 80, 60, "E", "blue"],
+                    [-180, 50, 80, 130, "E", "blue"],
+                    [-100, -180, 100, 60, "P", "green"],
+                    [-100, 50, 100, 130, "P", "green"],
+                    [-180, -120, 180, 170, "H", "red"],
+                    [0, -180, 180, 360, "L", "yellow"]]
+}

@@ -51,10 +51,38 @@ def normalization_category(df):
     return df
 
 
+def normalization_dssp(df):
+    column_dssp_energy = [
+        "s_nh_energy",
+        "s_o_energy",
+        "s_nh2_energy",
+        "s_o2_energy",
+        "t_nh_energy",
+        "t_o_energy",
+        "t_nh2_energy",
+        "t_o2_energy",
+    ]
+    column_dssp_relidix = [
+        "s_nh_relidix",
+        "s_o_relidx",
+        "s_nh2_relidx",
+        "s_o2_relidx",
+        "t_nh_relidix",
+        "t_o_relidx",
+        "t_nh2_relidx",
+        "t_o2_relidx",
+    ]
+    scale = MinMaxScaler()
+    df[column_dssp_energy] = scale.fit_transform(df[column_dssp_energy])
+    df[column_dssp_relidix] = scale.fit_transform(df[column_dssp_relidix])
+    return df
+
+
 def all_normalization(df):
     df = normalization_angles(df)
     df = normalization_achety(df)
     df = normalization_rsa(df)
     df = normalization_half_sphere(df)
     df = normalization_category(df)
+    df = normalization_dssp(df)
     return df

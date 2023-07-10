@@ -50,11 +50,11 @@ if __name__ == "__main__":
     print("start manipulation...")
     if args.manipulation == "unclassified":
         df = data_manipulation.generate_interaction_dataframe(
-            data_manipulation.process_files_unclassified
+            data_manipulation.extract_interaction_using_unclassified
         )
     if args.manipulation == "eliminate_unclassified":
         df = data_manipulation.generate_interaction_dataframe(
-            data_manipulation.process_files_eliminate_unclassified
+            data_manipulation.extract_interaction_eliminate_unclassified
         )
 
     print("start normalization...")
