@@ -49,6 +49,10 @@ def create_model(input_dim, num_classes):
     return model
 
 
+def create_model_2(input_dim, num_classes):
+    model = keras.Sequential()
+
+
 def evaluate_model(model, X_test, Y_test):
     loss, accuracy = model.evaluate(X_test, Y_test)
     print("Accuracy", accuracy)

@@ -10,8 +10,9 @@ def extract_interaction_eliminate_unclassified(data):
     for row in data:
         pdb_id = row[0]
         resid1 = row[2]
-        resid2 = row[18]
+        resid2 = row[27]
         key = f"{pdb_id},{resid1},{resid2}"
+        print(key)
         interaction = row[-1]
         if interaction == "NaN" or interaction == "":
             continue
@@ -27,7 +28,7 @@ def extract_interaction_eliminate_unclassified(data):
 def extract_interaction_using_unclassified(data):
     processed_dict = {}
     for row in data:
-        pdb_id, resid1, resid2, interaction = row[0], row[2], row[18], row[-1]
+        pdb_id, resid1, resid2, interaction = row[0], row[2], row[27], row[-1]
         if interaction == "NaN" or interaction == "":
             interaction = "Unclassified"
         key = f"{pdb_id},{resid1},{resid2}"
@@ -52,7 +53,7 @@ def process_files(filename):
         data = list(reader)
         interaction_data = extract_interaction_using_unclassified(data[1:])
         save_dict_to_tsv(
-            interaction_data, filename.replace("features_ring", "features_ring_new")
+            interaction_data, filename.replace("feature_ring_new", "features_ring_news")
         )
     return interaction_data
 
@@ -64,6 +65,7 @@ def encode_interactions(value, labels):
 
 def generate_interaction_dataframe(function):
     interaction_data = {}
+    process_files(confix.PATH_FEATURE_RING_TSV)
     with Pool(15) as p:
         for data in p.map(function, glob.glob(confix.PATH_FEATURE_RING_TSV)):
             interaction_data.update(data)
@@ -76,7 +78,6 @@ def generate_interaction_dataframe(function):
         key: encode_interactions(value, interaction_labels)
         for key, value in interaction_data.items()
     }
-
     columns = [
         "pdb_id",
         "s_ch",
@@ -121,16 +122,15 @@ def generate_interaction_dataframe(function):
         "t_down",
         "t_phi",
         "t_psi",
-        "t_ss3",
+        "t_ss3	",
         "t_a1",
         "t_a2",
         "t_a3",
         "t_a4",
         "t_a5",
-        "interactions",
+        "Interaction",
         "nan",
     ]
-
     df = pd.DataFrame(list(processed_data.values()))
     df.columns = columns
     df.drop("nan", axis=1, inplace=True)

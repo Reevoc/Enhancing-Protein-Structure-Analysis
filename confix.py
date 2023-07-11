@@ -5,4 +5,4 @@ PATH_OUT_PDB_FILE = (
     "/home/piermarco/Documents/Enhancing-Protein-Structure-Analysis-/data/out_pdb_file/"
 )
 PATH_NEW_FEATURE_RING = "/home/piermarco/Documents/Enhancing-Protein-Structure-Analysis-/data/feature_ring_new/"
-PATH_FEATURE_RING_TSV = "data/features_ring_new/*.tsv"
+PATH_FEATURE_RING_TSV = "data/feature_ring_new/*.tsv"
