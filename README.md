@@ -31,16 +31,16 @@ By employing this approach, we effectively consolidate the duplicated data entri
 
 *Example of duplicated rows*:
 
-| pdb_id | s_resi |...| t_resi | Interaction |
-|--------|--------|---|--------|-------------|
-| 1b0y   | 28     |...|76      | HBOND       |
-| 1b0y   | 28     |...|38      | VDW         |
+| pdb_id | s_resi |...| t_resi |...| Interaction |
+|--------|--------|---|--------|---|-------------|
+| 1b0y   | 28     |...|76      |...| HBOND       |
+| 1b0y   | 28     |...|76      |...| VDW         |
 
 *Solution provided*:
 
-| pdb_id | s_resi |...|t_resi | Interaction|
-|--------|--------|---|-------|------------|
-| 1b0y   | 28     |...|76     |[HBOND, VDW]|
+| pdb_id | s_resi |...|t_resi |...|Interaction|
+|--------|--------|---|-------|---|------------|
+| 1b0y   | 28     |...|76     |...|[HBOND, VDW]|
 
 This will increase the number of possible interactions and will make the dataset more realistic.
 
@@ -51,6 +51,28 @@ In our dataset, it is important to note that not all possible interactions betwe
 To address this issue, we have made a deliberate decision. Rather than excluding those rows entirely, we have introduced a new category called **unclassified** to represent these interactions. By including this category, we aim to create a more comprehensive and robust model. We understand that this approach may result in a potential loss of accuracy in the final model. However, after careful consideration, we believe it is the best solution to handle the absence of certain interactions in the dataset.
 
 By adding the **unclassified** category, we acknowledge the presence of unobserved or unclassified interactions, ensuring that they are accounted for in our analysis. This approach allows us to capture a broader range of potential interactions, even though they may not be directly observable in the protein structure.
+
+## Normalization of the data
+
+The normalization proposed is done by normalize the data depending on the type of data. The normalization is done by using the MinMaxScaler from sklearn. The normalization is done in the following way:
+
+1. **Normalization of Angles:**
+   The first normalization function focuses on columns representing angles in the dataset. Angles are mathematical values that describe the shape or orientation of certain features.
+
+2. **Normalization of Acetylcholine Features:**
+   The second normalization function deals with specific columns related to acetylcholine features. Acetylcholine is a neurotransmitter that plays a role in various biological processes.
+
+3. **Normalization of Relative Solvent Accessibility (RSA):**
+   The third normalization function focuses on columns representing the relative solvent accessibility (RSA). RSA refers to how exposed or buried a certain part of a molecule is within its environment.
+
+4. **Normalization of Half-Sphere Coordinates:**
+   The fourth normalization function addresses columns containing half-sphere coordinates. These coordinates describe the position or orientation of certain features.
+
+5. **Normalization of Categorical Features:**
+   The final normalization function deals with categorical features in the dataset. Categorical features represent different categories or labels, such as types of structures or residues. To transform these categorical labels into numerical representations, a technique called "LabelEncoder" is used. This transformation enables the categorical features to be used effectively in machine learning algorithms and analysis.
+
+By applying these normalization techniques, the data is prepared in a standardized and comparable format. This ensures that the various features are on a consistent scale, allowing for accurate analysis, modeling, and interpretation of the data.
+
 
 
 
