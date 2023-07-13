@@ -4,7 +4,7 @@ The Residue Interaction Network Generator (RING) and Ribbon Diagrams have revolu
 The aim of this powerfull tool in the field of structural biology is to provide a simple and intuitive way to visualize the interactions between residues in a protein structure.
 In our case we are going to develop a software that will be able to predict the interactions between residues in a protein structure, given a dataset of protein structures and its corresponding interactions.
 
-## Dataset
+# Dataset
 The first look of the project were given to datasets provided to understand the problem and the data. The datasets provide different type of geometrical information about the protein structures. We are going to summarize, the data are devided in two parts the source amino acid and the target amino acid. The source amino acid is the amino acid that is going to interact with the target amino acid. The data for the source and target aminoacids are provided in a csv file with the following columns:
 
 - **pdb_id**: The id of the protein structure.
@@ -20,7 +20,53 @@ The first look of the project were given to datasets provided to understand the 
 - **ss3**: 
 - **a1 to a5**: Atchley scale of the amino acid.
 
+
+## Adding New data
+
+To enhance the accuracy of our predictions regarding interactions between amino acids, we recognized that the existing dataset was insufficient. As a result, we made the decision to augment the dataset with additional data. Prior to this decision, we conducted preliminary experiments using simple prediction models. These models and their outcomes will be presented in detail later in the report, providing a clearer understanding of our rationale.
+
+The first step involved incorporating a new set of data obtained from the DSSP module. To achieve this, we made modifications to the code provided by our professor, specifically in the calcfeatures.py file. During this process, we also identified and rectified errors present in the code, which were caused by the use of deprecated libraries. By addressing these issues, we ensured the proper functionality of the code and obtained the necessary data from the DSSP module.
+
+These additions to the dataset, obtained through modifications and improvements to the code, significantly bolstered the quality and comprehensiveness of the data used for predicting amino acid interactions. The subsequent sections of the paper will delve into the details of the modifications made to the code and the specific improvements achieved:
+
+   ```python
+   if file_extension == ".pdb":
+        structure = PDBParser(QUIET=True).get_structure(pdb_id, args.pdb_file)
+    elif file_extension == ".cif":
+        structure = MMCIFParser(QUIET=True).get_structure(pdb_id, args.pdb_file)
+    else:
+        print("Error: Unsupported file extension.")
+   ```
+By implementing these changes, our code is now capable of processing and extracting relevant data from both CIF and PDB files. This flexibility allows us to incorporate a broader range of structural data sources, enhancing the scope and versatility of our analysis.
+
+Overall, this modification provides us with greater flexibility in data acquisition and enables us to explore a wider range of structural information, contributing to a more comprehensive analysis of amino acid interactions.
+
+We encountered challenges with the deprecated version of the DSSP module, which caused conflicts with our Python version. To address this issue, we took a two-step approach.
+
+First, we used an external software tool to generate the DSSP file separately. This allowed us to obtain the required structural information for further analysis. In the second step, we carefully examined the code and identified the specific problem causing the conflict. By updating the module and replacing the deprecated dssp function with mkdssp, we resolved the compatibility issues.
+
+The following code snippet demonstrates the implementation of this update:
+
+   ```python
+   dssp = {}
+    try:
+        dssp = dict(DSSP(structure[0], args.pdb_file, dssp="mkdssp"))
+    except Exception:
+        logging.warning("{} DSSP error".format(pdb_id))
+   ``` 
+
+By resolving the compatibility issues, we were able to obtain the required structural information from the DSSP module. This enabled us to incorporate a broader range of structural data sources, enhancing the scope and versatility of our analysis.
+
+To address the absence of PDB files associated with the feature_ring dataset provided, we developed a Python script named **collect_pdb.py**. This script efficiently downloads all the necessary PDB files related to the dataset. The process is straightforward: the script takes the filename as input from the feature_ring folder and proceeds to download the corresponding PDB files.
+
+Furthermore, after the successful download of the PDB files, the script automatically executes the calcfeatures.py script for each downloaded PDB file. This allows us to calculate the new features specific to each PDB file by making appropriate calls from the terminal.
+
+By utilizing the **collect_pdb.py** script, we ensure the availability of all the required PDB files for the feature_ring dataset. This enables us to generate accurate and up-to-date features for further analysis.
+
+
+
 ## Looking at the data
+
 Upon careful examination of the data and file, we have observed instances where certain rows are identical, except for the interactions recorded. This occurs because a single amino acid can interact with multiple other amino acids. As a result, we encounter a challenge of having duplicated data entries within the dataset.
 
 To address this issue, we have implemented a solution involving the creation of a new column called "interaction." This column serves as a list to store the various interactions involving the amino acid.
@@ -72,6 +118,13 @@ The normalization proposed is done by normalize the data depending on the type o
    The final normalization function deals with categorical features in the dataset. Categorical features represent different categories or labels, such as types of structures or residues. To transform these categorical labels into numerical representations, a technique called "LabelEncoder" is used. This transformation enables the categorical features to be used effectively in machine learning algorithms and analysis.
 
 By applying these normalization techniques, the data is prepared in a standardized and comparable format. This ensures that the various features are on a consistent scale, allowing for accurate analysis, modeling, and interpretation of the data.
+
+## Multiclass Classification Problem
+
+In machine learning and statistical classification, multiclass classification or multinomial classification is the problem of classifying instances into one of three or more classes (classifying instances into one of two classes is called binary classification). Multiclass classification should not be confused with multi-label classification, where multiple labels are to be predicted for each instance.
+We take also in account to use this last possibility by codify our interaction as one hot encoding vector for our prediction.
+
+## 
 
 
 

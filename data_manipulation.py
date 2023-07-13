@@ -10,9 +10,8 @@ def extract_interaction_eliminate_unclassified(data):
     for row in data:
         pdb_id = row[0]
         resid1 = row[2]
-        resid2 = row[27]
+        resid2 = row[18]
         key = f"{pdb_id},{resid1},{resid2}"
-        print(key)
         interaction = row[-1]
         if interaction == "NaN" or interaction == "":
             continue
@@ -28,7 +27,7 @@ def extract_interaction_eliminate_unclassified(data):
 def extract_interaction_using_unclassified(data):
     processed_dict = {}
     for row in data:
-        pdb_id, resid1, resid2, interaction = row[0], row[2], row[27], row[-1]
+        pdb_id, resid1, resid2, interaction = row[0], row[2], row[18], row[-1]
         if interaction == "NaN" or interaction == "":
             interaction = "Unclassified"
         key = f"{pdb_id},{resid1},{resid2}"
@@ -47,14 +46,12 @@ def save_dict_to_tsv(dictionary, filename):
         writer.writerows(dictionary.values())
 
 
-def process_files(filename):
+def process_files(filename, function):
     with open(filename, "r") as f:
         reader = csv.reader(f, delimiter="\t")
         data = list(reader)
-        interaction_data = extract_interaction_using_unclassified(data[1:])
-        save_dict_to_tsv(
-            interaction_data, filename.replace("feature_ring_new", "features_ring_news")
-        )
+        interaction_data = function(data[1:])
+        save_dict_to_tsv(interaction_data, filename)
     return interaction_data
 
 
@@ -64,10 +61,14 @@ def encode_interactions(value, labels):
 
 
 def generate_interaction_dataframe(function):
+    for files in glob.glob(confix.PATH_FEATURE_RING_TSV):
+        process_files(files, function)
+
     interaction_data = {}
-    process_files(confix.PATH_FEATURE_RING_TSV)
     with Pool(15) as p:
-        for data in p.map(function, glob.glob(confix.PATH_FEATURE_RING_TSV)):
+        print(list(glob.glob(confix.PATH_FEATURE_RING_TSV_NEW)))
+        input()
+        for data in p.map(function, glob.glob(confix.PATH_FEATURE_RING_TSV_NEW)):
             interaction_data.update(data)
 
     interactions = [v[-1] for _, v in interaction_data.items()]
