@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
 
 
 def drop_useless_column(df):
@@ -19,13 +20,20 @@ def transform_alphabetical_numerical(df):
 
 
 def create_X(df):
-    X = df.drop(["interactions"], axis=1).copy()
+    X = df.drop(["Interaction"], axis=1).copy()
     return X
 
 
 def create_Y(df):
-    Y = df["interactions"]
+    Y = df["Interaction"]
     return Y
+
+
+def split_train_test(X, Y):
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        X, Y, test_size=0.1, shuffle=True
+    )
+    return X_train, X_test, Y_train, Y_test
 
 
 def split_dataset(df):

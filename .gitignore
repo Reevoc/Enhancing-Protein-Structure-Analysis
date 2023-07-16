@@ -164,4 +164,5 @@ hssp-3.1.5/
 hssp/
 dssp/
 data/
-
+merged.tsv
+data_copy/

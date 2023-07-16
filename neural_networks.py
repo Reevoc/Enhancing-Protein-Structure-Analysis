@@ -14,7 +14,8 @@ def creating_dataset_for_train(df):
     X, Y = split.split_dataset(df)
 
     X = X.astype(float)
-
+    # print data types of Y
+    print(Y.dtypes)
     Y = to_categorical(Y)
     # split the dataset into train and test
     X_train, X_test, Y_train, Y_test = split.split_train_test(X, Y)

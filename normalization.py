@@ -41,13 +41,19 @@ def normalization_half_sphere(df):
 
 
 def normalization_category(df):
-    column_category_ss8 = ["s_ss8", "t_ss8"]
-    column_category_ss3 = ["s_ss3", "t_ss3"]
-    column_category_resn = ["s_resn", "t_resn"]
+    column_category_ss8 = "s_ss8"
+    column_category_ss3 = "s_ss3"
+    column_category_resn = "s_resn"
+    column_category_resnt = "t_resn"
+    column_category_ss8t = "t_ss8"
+    column_category_ss3t = "t_ss3"
     le = LabelEncoder()
-    df[column_category_ss8] = le.fit_transform(df[column_category_ss8])
     df[column_category_ss3] = le.fit_transform(df[column_category_ss3])
     df[column_category_resn] = le.fit_transform(df[column_category_resn])
+    df[column_category_ss8] = le.fit_transform(df[column_category_ss8])
+    df[column_category_ss3t] = le.fit_transform(df[column_category_ss3t])
+    df[column_category_resnt] = le.fit_transform(df[column_category_resnt])
+    df[column_category_ss8t] = le.fit_transform(df[column_category_ss8t])
     return df
 
 
@@ -78,11 +84,22 @@ def normalization_dssp(df):
     return df
 
 
+def normalization_interactions(df):
+    df["Interaction"] = df["Interaction"].apply(
+        lambda x: x[0] if isinstance(x, list) else x
+    )
+    label_encoder = LabelEncoder()
+    df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
+
+    return df
+
+
 def all_normalization(df):
     df = normalization_angles(df)
     df = normalization_achety(df)
     df = normalization_rsa(df)
     df = normalization_half_sphere(df)
-    df = normalization_category(df)
     df = normalization_dssp(df)
+    df = normalization_category(df)
+    df = normalization_interactions(df)
     return df

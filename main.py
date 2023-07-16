@@ -10,6 +10,7 @@ from tensorflow.keras import layers
 from sklearn.preprocessing import MultiLabelBinarizer
 import neural_networks
 import sys
+import pandas as pd
 
 
 def parser():
@@ -53,13 +54,13 @@ if __name__ == "__main__":
             data_manipulation.extract_interaction_using_unclassified
         )
     if args.manipulation == "eliminate_unclassified":
-        df = data_manipulation.generate_interaction_dataframe(
-            data_manipulation.extract_interaction_eliminate_unclassified
-        )
-
+        # df = data_manipulation.generate_data()
+        df = pd.read_csv("./merged.tsv", sep="\t")
+        print(df.head(15).T)
     print("start normalization...")
     if args.normalization == "normalization_all":
         df = normalization.all_normalization(df)
+        print(df.head(15).T)
 
     print("start evaluation...")
     if args.model == "model_1":

@@ -27,8 +27,6 @@ for file_name in file_names:
         df1 = pd.read_csv(file1_path, sep="\t")
         df2 = pd.read_csv(file2_path, sep="\t")
 
-        df2["Interaction"] = df1["Interaction"]
-
         merged_file_path = os.path.join(confix.PATH_NEW_FEATURE_RING, file_name)
         print(f"Append Interactions --> [{counter}, {len(file_names)}]")
         counter += 1
