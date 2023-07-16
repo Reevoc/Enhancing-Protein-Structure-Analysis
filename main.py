@@ -7,7 +7,7 @@ import argparse
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.preprocessing import MultiLabelBinarizer, MinMaxScaler
 import neural_networks
 import sys
 import pandas as pd
@@ -48,22 +48,29 @@ def parser():
 if __name__ == "__main__":
     args = parser()
 
-    print("start manipulation...")
-    if args.manipulation == "unclassified":
-        df = data_manipulation.generate_interaction_dataframe(
-            data_manipulation.extract_interaction_using_unclassified
-        )
     if args.manipulation == "eliminate_unclassified":
-        # df = data_manipulation.generate_data()
-        df = pd.read_csv("./merged.tsv", sep="\t")
-        print(df.head(15).T)
-    print("start normalization...")
-    if args.normalization == "normalization_all":
-        df = normalization.all_normalization(df)
-        print(df.head(15).T)
+        df = data_manipulation.generate_data_2()
+        # df = pd.read_csv("./merged.tsv", sep="\t")
 
-    print("start evaluation...")
+    if args.manipulation == "unclassified":
+        df = data_manipulation.generate_data()
+        # df = pd.read_csv("./merged.tsv", sep="\t")
+
+    if args.normalization == "MinMaxScaler":
+        df = normalization.all_normalization(df, "MinMaxScaler")
+    if args.normalization == "StandardScaler":
+        df = normalization.all_normalization(df, "StandardScaler")
+    if args.normalization == "no_normalization":
+        df = normalization.all_normalization(df, "no_normalization")
+
     if args.model == "model_1":
-        neural_networks.model_1(df)
+        loss, accuracy = neural_networks.model(df, neural_networks.create_model_1)
     if args.model == "model_2":
-        neural_networks.model_2(df)
+        loss, accuracy = neural_networks.model(df, neural_networks.create_model_2)
+    if args.model == "model_3":
+        loss, accuracy = neural_networks.model(df, neural_networks.create_model_3)
+
+    with open("./results.csv", "a") as f:
+        f.write(
+            f"manipulation: {args.manipulation}, model: {args.model}, normalization: {args.normalization}, loss: {loss}, accuracy: {accuracy}\n"
+        )

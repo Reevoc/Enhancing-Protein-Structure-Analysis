@@ -1,14 +1,21 @@
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder, StandardScaler
 
 
-def normalization_angles(df):
+def normalization_angles(df, scale):
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
     column_angles = ["s_phi", "s_psi", "t_psi", "t_phi"]
-    scaler = MinMaxScaler()
     df[column_angles] = scaler.fit_transform(df[column_angles])
     return df
 
 
-def normalization_achety(df):
+def normalization_achety(df, scale):
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
     column_achety = [
         "s_a1",
         "s_a2",
@@ -21,21 +28,26 @@ def normalization_achety(df):
         "t_a4",
         "t_a5",
     ]
-    scaler = MinMaxScaler()
     df[column_achety] = scaler.fit_transform(df[column_achety])
     return df
 
 
-def normalization_rsa(df):
+def normalization_rsa(df, scale):
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
     column_rsa = ["s_rsa", "t_rsa"]
-    scaler = MinMaxScaler()
     df[column_rsa] = scaler.fit_transform(df[column_rsa])
     return df
 
 
-def normalization_half_sphere(df):
+def normalization_half_sphere(df, scale):
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
     column_half_sphere = ["s_up", "s_down", "t_up", "t_down"]
-    scaler = MinMaxScaler()
     df[column_half_sphere] = scaler.fit_transform(df[column_half_sphere])
     return df
 
@@ -57,7 +69,11 @@ def normalization_category(df):
     return df
 
 
-def normalization_dssp(df):
+def normalization_dssp(df, scale):
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
     column_dssp_energy = [
         "s_nh_energy",
         "s_o_energy",
@@ -78,9 +94,8 @@ def normalization_dssp(df):
         "t_nh2_relidx",
         "t_o2_relidx",
     ]
-    scale = MinMaxScaler()
-    df[column_dssp_energy] = scale.fit_transform(df[column_dssp_energy])
-    df[column_dssp_relidix] = scale.fit_transform(df[column_dssp_relidix])
+    df[column_dssp_energy] = scaler.fit_transform(df[column_dssp_energy])
+    df[column_dssp_relidix] = scaler.fit_transform(df[column_dssp_relidix])
     return df
 
 
@@ -90,16 +105,16 @@ def normalization_interactions(df):
     )
     label_encoder = LabelEncoder()
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
-
     return df
 
 
-def all_normalization(df):
-    df = normalization_angles(df)
-    df = normalization_achety(df)
-    df = normalization_rsa(df)
-    df = normalization_half_sphere(df)
-    df = normalization_dssp(df)
+def all_normalization(df, scale):
+    if scale != "no_normalization":
+        df = normalization_angles(df, scale)
+        df = normalization_achety(df, scale)
+        df = normalization_rsa(df, scale)
+        df = normalization_half_sphere(df, scale)
+        df = normalization_dssp(df, scale)
     df = normalization_category(df)
     df = normalization_interactions(df)
     return df

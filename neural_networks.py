@@ -12,18 +12,11 @@ import numpy as np
 
 def creating_dataset_for_train(df):
     X, Y = split.split_dataset(df)
-
     X = X.astype(float)
-    # print data types of Y
-    print(Y.dtypes)
     Y = to_categorical(Y)
     # split the dataset into train and test
     X_train, X_test, Y_train, Y_test = split.split_train_test(X, Y)
-    print("dataset splitted...")
 
-    print(
-        f"information about len of the dataset: {X_train.shape, Y_train.shape, X_test.shape, Y_test.shape}"
-    )
     return X_train, X_test, Y_train, Y_test
 
 
@@ -33,7 +26,7 @@ def create_input_dim(X_train, Y_train):
     return input_dim, num_classes
 
 
-def create_model(input_dim, num_classes):
+def create_model_1(input_dim, num_classes):
     model = keras.Sequential()
     model.add(layers.Dense(128, activation="relu", input_dim=input_dim))
     model.add(layers.BatchNormalization())
@@ -51,18 +44,41 @@ def create_model(input_dim, num_classes):
 
 
 def create_model_2(input_dim, num_classes):
-    model = keras.Sequential()
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Dense(128, activation="relu", input_dim=input_dim))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.4))
+    model.add(tf.keras.layers.Dense(256, activation="relu"))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.4))
+    model.add(tf.keras.layers.Dense(512, activation="relu"))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.4))
+    model.add(tf.keras.layers.Dense(num_classes, activation="sigmoid"))
+
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    model.summary()
+    return model
+
+
+def create_model_3(input_dim, num_classes):
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Dense(128, activation="relu", input_dim=input_dim))
+    model.add(tf.keras.layers.Dense(256, activation="relu"))
+    model.add(tf.keras.layers.Dense(num_classes, activation="sigmoid"))
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    return model
 
 
 def evaluate_model(model, X_test, Y_test):
     loss, accuracy = model.evaluate(X_test, Y_test)
-    print("Accuracy", accuracy)
+    return loss, accuracy
 
 
-def model_1(df):
+def model(df, function):
     X_train, X_test, Y_train, Y_test = creating_dataset_for_train(df)
     input_dim, num_classes = create_input_dim(X_train, Y_train)
-    model = create_model(input_dim, num_classes)
+    model = function(input_dim, num_classes)
     model.fit(
         X_train,
         Y_train,
@@ -71,28 +87,5 @@ def model_1(df):
         verbose=True,
         validation_data=(X_test, Y_test),
     )
-    evaluate_model(model, X_test, Y_test)
-
-
-def model_2(df):
-    X_train, X_test, Y_train, Y_test = creating_dataset_for_train(df)
-    input_dim, num_classes = create_input_dim(X_train, Y_train)
-    model = create_model(input_dim, num_classes)
-    class_weight = {}
-    Y_train = Y_train.astype("int64")
-
-    for label in range(num_classes):
-        label_counts = np.bincount(Y_train[:, label])
-        print(label_counts)
-        print(label_counts.max() / label_counts[label])
-        class_weight[label] = label_counts.max() / label_counts[label]
-
-    model.fit(
-        X_train,
-        Y_train,
-        epochs=10,
-        batch_size=128,
-        verbose=True,
-    )
-
-    evaluate_model(model, X_test, Y_test)
+    loss, accuracy = evaluate_model(model, X_test, Y_test)
+    return loss, accuracy
