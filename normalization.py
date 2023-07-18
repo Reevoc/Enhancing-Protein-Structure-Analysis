@@ -52,20 +52,25 @@ def normalization_half_sphere(df, scale):
     return df
 
 
-def normalization_category(df):
-    column_category_ss8 = "s_ss8"
-    column_category_ss3 = "s_ss3"
-    column_category_resn = "s_resn"
-    column_category_resnt = "t_resn"
-    column_category_ss8t = "t_ss8"
-    column_category_ss3t = "t_ss3"
+def normalization_category(df, scale):
+    column_category = [
+        "s_ch",
+        "t_ch",
+        "s_ss3",
+        "t_ss3",
+        "s_ss8",
+        "t_ss8",
+        "s_resn",
+        "t_resn",
+    ]
     le = LabelEncoder()
-    df[column_category_ss3] = le.fit_transform(df[column_category_ss3])
-    df[column_category_resn] = le.fit_transform(df[column_category_resn])
-    df[column_category_ss8] = le.fit_transform(df[column_category_ss8])
-    df[column_category_ss3t] = le.fit_transform(df[column_category_ss3t])
-    df[column_category_resnt] = le.fit_transform(df[column_category_resnt])
-    df[column_category_ss8t] = le.fit_transform(df[column_category_ss8t])
+    for column in column_category:
+        df[column] = le.fit_transform(df[column])
+    if scale == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    if scale == "StandardScaler":
+        scaler = StandardScaler()
+    df[column_category] = scaler.fit_transform(df[column_category])
     return df
 
 
@@ -115,6 +120,6 @@ def all_normalization(df, scale):
         df = normalization_rsa(df, scale)
         df = normalization_half_sphere(df, scale)
         df = normalization_dssp(df, scale)
-    df = normalization_category(df)
+    df = normalization_category(df, scale)
     df = normalization_interactions(df)
     return df

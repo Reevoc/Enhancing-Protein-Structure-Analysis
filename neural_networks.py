@@ -22,7 +22,9 @@ def creating_dataset_for_train(df):
 
 def create_input_dim(X_train, Y_train):
     input_dim = X_train.shape[1]
+    print(input_dim)
     num_classes = Y_train.shape[1]
+    print(num_classes)
     return input_dim, num_classes
 
 
@@ -37,7 +39,7 @@ def create_model_1(input_dim, num_classes):
     model.add(layers.Dense(32, activation="relu"))
     model.add(layers.BatchNormalization())
     model.add(layers.Dropout(0.2))
-    model.add(layers.Dense(num_classes, activation="sigmoid"))
+    model.add(layers.Dense(num_classes, activation="softmax"))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
@@ -54,7 +56,7 @@ def create_model_2(input_dim, num_classes):
     model.add(tf.keras.layers.Dense(512, activation="relu"))
     model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Dropout(0.4))
-    model.add(tf.keras.layers.Dense(num_classes, activation="sigmoid"))
+    model.add(tf.keras.layers.Dense(num_classes, activation="softmax"))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     model.summary()
@@ -63,10 +65,12 @@ def create_model_2(input_dim, num_classes):
 
 def create_model_3(input_dim, num_classes):
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Dense(128, activation="relu", input_dim=input_dim))
+    model.add(tf.keras.layers.Dense(896, activation="relu", input_dim=input_dim))
     model.add(tf.keras.layers.Dense(256, activation="relu"))
-    model.add(tf.keras.layers.Dense(num_classes, activation="sigmoid"))
-    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    model.add(tf.keras.layers.Dense(num_classes, activation="softmax"))
+    model.compile(
+        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    )
     return model
 
 

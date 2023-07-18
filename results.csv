@@ -16,3 +16,6 @@ manipulation: eliminate_unclassified, model: model_3, normalization: StandardSca
 manipulation: unclassified, model: model_3, normalization: StandardScaler, loss: 0.2114606499671936, accuracy: 0.6914973855018616
 manipulation: eliminate_unclassified, model: model_3, normalization: no_normalization, loss: 0.1842896044254303, accuracy: 0.6804077625274658
 manipulation: unclassified, model: model_3, normalization: no_normalization, loss: 0.18554560840129852, accuracy: 0.6810255646705627
+manipulation: unclassified, model: model_3, normalization: StandardScaler, loss: 0.21002478897571564, accuracy: 0.6915283203125
+manipulation: unclassified, model: model_3, normalization: MinMaxScaler, loss: 0.20793060958385468, accuracy: 0.6270548701286316
+manipulation: eliminate_unclassified, model: model_3, normalization: StandardScaler, loss: 0.1847907155752182, accuracy: 0.68345046043396
