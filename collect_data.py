@@ -2,6 +2,7 @@ import os
 from Bio import PDB
 from urllib.request import urlretrieve
 import confix
+import subprocess
 
 
 def download_pdb(pdb_code, output_folder):
@@ -32,7 +33,23 @@ def create_pdb_folder(input_folder, output_folder):
         count += 1
 
 
+def create_new_feature_ring():
+    file_names = os.listdir(confix.PATH_OUT_PDB_FILE)
+
+    command = "python3 calc_features.py"
+
+    # Iterate over the file names and run the command on each file
+    counter = 0
+    for file_name in file_names:
+        file_path = os.path.join(confix.PATH_OUT_PDB_FILE, file_name)
+        cmd = f"{command} {file_path} -out_dir {confix.PATH_NEW_FEATURE_RING}"
+        print(f"crateing --> [{counter}, {len(file_names)}]")
+        counter += 1
+        subprocess.run(cmd, shell=True)
+
+
 if __name__ == "__main__":
     input_folder = confix.PATH_FEATURES_RING
     output_folder = confix.PATH_OUT_PDB_FILE
     create_pdb_folder(input_folder, output_folder)
+    create_new_feature_ring()
