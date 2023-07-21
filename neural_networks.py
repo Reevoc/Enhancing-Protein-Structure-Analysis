@@ -1,13 +1,8 @@
-import data_manipulation
-import split
-import normalization
+from keras import Sequential
+from keras.layers import BatchNormalization, Dense, Dropout
 from keras.utils import to_categorical
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from sklearn.preprocessing import MultiLabelBinarizer
-import numpy as np
+import split
 
 
 def creating_dataset_for_train(df):
@@ -29,34 +24,34 @@ def create_input_dim(X_train, Y_train):
 
 
 def create_model_1(input_dim, num_classes):
-    model = keras.Sequential()
-    model.add(layers.Dense(128, activation="relu", input_dim=input_dim))
-    model.add(layers.BatchNormalization())
-    model.add(layers.Dropout(0.2))
-    model.add(layers.Dense(64, activation="relu"))
-    model.add(layers.BatchNormalization())
-    model.add(layers.Dropout(0.2))
-    model.add(layers.Dense(32, activation="relu"))
-    model.add(layers.BatchNormalization())
-    model.add(layers.Dropout(0.2))
-    model.add(layers.Dense(num_classes, activation="softmax"))
+    model = Sequential()
+    model.add(Dense(128, activation="relu", input_dim=input_dim))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.2))
+    model.add(Dense(64, activation="relu"))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.2))
+    model.add(Dense(32, activation="relu"))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.2))
+    model.add(Dense(num_classes, activation="softmax"))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
 
 
 def create_model_2(input_dim, num_classes):
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Dense(128, activation="relu", input_dim=input_dim))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dropout(0.4))
-    model.add(tf.keras.layers.Dense(256, activation="relu"))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dropout(0.4))
-    model.add(tf.keras.layers.Dense(512, activation="relu"))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dropout(0.4))
-    model.add(tf.keras.layers.Dense(num_classes, activation="softmax"))
+    model = Sequential()
+    model.add(Dense(128, activation="relu", input_dim=input_dim))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.4))
+    model.add(Dense(256, activation="relu"))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.4))
+    model.add(Dense(512, activation="relu"))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.4))
+    model.add(Dense(num_classes, activation="softmax"))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     model.summary()
@@ -64,10 +59,10 @@ def create_model_2(input_dim, num_classes):
 
 
 def create_model_3(input_dim, num_classes):
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Dense(896, activation="relu", input_dim=input_dim))
-    model.add(tf.keras.layers.Dense(256, activation="relu"))
-    model.add(tf.keras.layers.Dense(num_classes, activation="softmax"))
+    model = Sequential()
+    model.add(Dense(896, activation="relu", input_dim=input_dim))
+    model.add(Dense(256, activation="relu"))
+    model.add(Dense(num_classes, activation="softmax"))
     model.compile(
         optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
     )
@@ -79,10 +74,19 @@ def evaluate_model(model, X_test, Y_test):
     return loss, accuracy
 
 
-def model(df, function):
+def get_model(name):
+    if name == "model_1":
+        return create_model_1
+    if name == "model_2":
+        return create_model_2
+    if name == "model_3":
+        return create_model_3
+
+
+def model(df, model_name):
     X_train, X_test, Y_train, Y_test = creating_dataset_for_train(df)
     input_dim, num_classes = create_input_dim(X_train, Y_train)
-    model = function(input_dim, num_classes)
+    model = get_model(model_name)(input_dim, num_classes)
     model.fit(
         X_train,
         Y_train,

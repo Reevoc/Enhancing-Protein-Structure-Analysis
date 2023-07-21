@@ -90,7 +90,7 @@ def encode_interactions(value, labels):
     return value
 
 
-def get_common_set(pattern1, pattern2):
+def get_common_set_ids(pattern1, pattern2):
     set1 = set(list(map(os.path.basename, list(glob.glob(pattern1)))))
     set2 = set(list(map(os.path.basename, list(glob.glob(pattern2)))))
     return set1.intersection(set2)
@@ -118,88 +118,18 @@ def extract_data_from_files(paths, extraction_function):
     return result_dict
 
 
-def generate_data():
-    set3 = get_common_set(
+def generate_data(eliminate_unclassified=False):
+    set3 = get_common_set_ids(
         confix.PATTERN_FEATURE_RING_TSV, confix.PATTERN_FEATURE_RING_TSV_NEW
     )
     path_new = get_file_paths(confix.PATH_FEATURES_RING_NEW, set3)
     path_normal = get_file_paths(confix.PATH_FEATURES_RING, set3)
 
     dict_FRN = extract_data_from_files(path_new, extract_interaction_FRN)
-
-    dict_FR = extract_data_from_files(path_normal, extract_interaction_FR)
-
-    merged_dict = merge_dictionaries(dict_FRN, dict_FR)
-
-    df = pd.DataFrame(merged_dict.values())
-    columns = [
-        "pdb_id",
-        "s_ch",
-        "s_resi",
-        "s_ins",
-        "s_resn",
-        "s_ss8",
-        "s_rsa",
-        "s_nh_relidix",
-        "s_nh_energy",
-        "s_o_relidx",
-        "s_o_energy",
-        "s_nh2_relidx",
-        "s_nh2_energy",
-        "s_o2_relidx",
-        "s_o2_energy",
-        "s_up",
-        "s_down",
-        "s_phi",
-        "s_psi",
-        "s_ss3",
-        "s_a1",
-        "s_a2",
-        "s_a3",
-        "s_a4",
-        "s_a5",
-        "t_ch",
-        "t_resi",
-        "t_ins",
-        "t_resn",
-        "t_ss8",
-        "t_rsa",
-        "t_nh_relidix",
-        "t_nh_energy",
-        "t_o_relidx",
-        "t_o_energy",
-        "t_nh2_relidx",
-        "t_nh2_energy",
-        "t_o2_relidx",
-        "t_o2_energy",
-        "t_up",
-        "t_down",
-        "t_phi",
-        "t_psi",
-        "t_ss3",
-        "t_a1",
-        "t_a2",
-        "t_a3",
-        "t_a4",
-        "t_a5",
-        "Interaction",
-    ]
-    df.dropna(inplace=True)
-    df.columns = columns
-    # df.to_csv("./merged.tsv", sep="\t", index=False)
-    return df
-
-
-def generate_data_2():
-    set3 = get_common_set(
-        confix.PATTERN_FEATURE_RING_TSV, confix.PATTERN_FEATURE_RING_TSV_NEW
-    )
-    path_new = get_file_paths(confix.PATH_FEATURES_RING_NEW, set3)
-    path_normal = get_file_paths(confix.PATH_FEATURES_RING, set3)
-
-    dict_FRN = extract_data_from_files(path_new, extract_interaction_FRN)
-
-    dict_FR = extract_data_from_files(path_normal, extract_interaction_FR_NO_empty)
+    if eliminate_unclassified:
+        dict_FR = extract_data_from_files(path_normal, extract_interaction_FR_NO_empty)
+    else:
+        dict_FR = extract_data_from_files(path_normal, extract_interaction_FR)
 
     merged_dict = merge_dictionaries(dict_FRN, dict_FR)
 
