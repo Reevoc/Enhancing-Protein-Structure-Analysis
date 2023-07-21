@@ -160,9 +160,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-hssp-3.1.5/
-hssp/
-dssp/
 data/
 merged.tsv
 data_copy/
+.vscode
+
