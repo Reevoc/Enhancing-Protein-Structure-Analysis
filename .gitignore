@@ -160,8 +160,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-data/
-merged.tsv
-data_copy/
-.vscode
+**/*.tsv
+!data/atchley.tsv
+**/*.pdb
+**/*.cif
+**/*.zip
+!data/features_ring.zip
 
+.vscode
+__pycache__
