@@ -196,26 +196,4 @@ def prepare_data(index, balanced=True) -> pd.DataFrame:
         columns=conf.COLUMNS_BIG,
     )
 
-    balance_interaction_types(df)
-
     return df
-
-
-def balance_interaction_types(df):
-    interaction_counts = df["Interaction"].value_counts()
-
-    interaction_subsets = {}
-    for interaction_type, count in interaction_counts.items():
-        interaction_subsets[interaction_type] = df[
-            df["Interaction"] == interaction_type
-        ]
-
-    target_samples = int(min(interaction_counts.values) * 4)
-    sampled_subsets = {}
-    for interaction_type, subset in interaction_subsets.items():
-        sampled_subsets[interaction_type] = subset.sample(
-            n=target_samples, random_state=42
-        )
-
-    uniform_training_set = pd.concat(sampled_subsets.values())
-    uniform_training_set = uniform_training_set.sample(frac=1, random_state=42)
