@@ -124,7 +124,7 @@ def kfold_train(
     kfold=conf.KFOLDS,
 ):
     print("Start training ")
-    X, Y = split.get_dataset(df)
+    X, Y = split.get_dataset(df, balanced=True)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
