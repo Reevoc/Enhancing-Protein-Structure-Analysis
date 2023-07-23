@@ -178,7 +178,7 @@ def _import_data(index: dict, delete_unclassified=False) -> dict:
     for k in ring_dict.keys():
         try:
             interaction = ring_dict[k][-1]
-            if interaction != "":  # TODO removes "None" interactions in some files
+            if interaction:  # TODO removes "None" interactions in some files
                 tsv_dict[k].append(ring_dict[k][-1])
         except:
             pass

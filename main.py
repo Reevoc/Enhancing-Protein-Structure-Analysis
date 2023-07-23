@@ -7,6 +7,9 @@ import src.neural_networks as neural_networks
 from src.manage_data import build_index, check_resi, prepare_data
 from src.normalization import normalization_df
 
+from keras.models import load_model
+from keras.optimizers import Adam
+
 
 def parser():
     parser = argparse.ArgumentParser(
@@ -70,19 +73,18 @@ if __name__ == "__main__":
         f.write(
             f"model_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
         )
+
         if len(sys.argv) > 1:
             main(df, args.model, args.normalization, f)
         else:
-            scales = ["StandardScaler", "MinMaxScaler"]
+            ## gridsearch
             scales = ["StandardScaler"]
             models = ["model_2", "model_3"]
-            models = ["model_3"]
-
-            optimizers = ["adam"]
-            dropout_rate = [0.0, 0.2, 0.4]
-            epochs = [15]
+            optimizers = [Adam(learning_rate=0.001)]
+            dropout_rate = [0.2]
+            epochs = [20]
+            conf.KFOLDS = 2
             params = [optimizers, dropout_rate, epochs]
-
             for scale in scales:
                 f.write(f"\n### {scale}\n")
                 df_norm = normalization_df(df, scale)
@@ -90,3 +92,10 @@ if __name__ == "__main__":
                     print(f"Start training {model_name}\n")
                     # neural_networks.kfold_train(df_norm,model_name,f)
                     neural_networks.gridsearch(df_norm, model_name, f, params)
+
+            # df_norm = normalization_df(df, "StandardScaler")
+            # neural_networks.train(df_norm, "model_3")
+
+            # # df_norm = normalization_df(df, "StandardScaler")
+            # model = load_model("model_3.h5")
+            # neural_networks.predict(df_norm, model)

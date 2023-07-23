@@ -146,15 +146,21 @@ def normalization_dssp(df, scaler):
 
 
 def normalization_interactions(df):
-    print("\tNormalization interactions")
-    interactions = list(df["Interaction"])
-    interactions = map(
-        lambda x: [
-            1 if x and i in x else 0 for i in conf.INTERACTION_TYPES
-        ],  # FIXME there are some None
-        interactions,
+    df["Interaction"] = df["Interaction"].apply(
+        lambda x: x[0] if isinstance(x, list) else x
     )
-    df["Interaction"] = list(interactions)
+    label_encoder = LabelEncoder()
+    df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
+
+    # print("\tNormalization interactions")
+    # interactions = list(df["Interaction"])
+    # interactions = map(
+    #     lambda x: [
+    #         1 if x and i in x else 0 for i in conf.INTERACTION_TYPES
+    #     ],  # FIXME there are some None
+    #     interactions,
+    # )
+    # df["Interaction"] = list(interactions)
     return df
 
 
