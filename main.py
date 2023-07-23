@@ -54,7 +54,6 @@ if __name__ == "__main__":
     out = f"./results{now}.csv"
 
     conf.DEBUG = True
-    # conf.MTHREAD=1
 
     index = build_index(
         path_pdb=conf.PATH_PDB,
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     )
 
     df = prepare_data(index)
-    # df.to_csv("data.tsv")
+    df.to_csv("data.tsv")
 
     with open(out, "w") as f:
         f.write(
@@ -75,13 +74,19 @@ if __name__ == "__main__":
             main(df, args.model, args.normalization, f)
         else:
             scales = ["StandardScaler", "MinMaxScaler"]
+            scales = ["StandardScaler"]
             models = ["model_2", "model_3"]
+            models = ["model_3"]
+
+            optimizers = ["adam"]
+            dropout_rate = [0.0, 0.2, 0.4]
+            epochs = [15]
+            params = [optimizers, dropout_rate, epochs]
 
             for scale in scales:
                 f.write(f"\n### {scale}\n")
                 df_norm = normalization_df(df, scale)
                 for model_name in models:
-                    print(f"Start training {model_name}")
-
+                    print(f"Start training {model_name}\n")
                     # neural_networks.kfold_train(df_norm,model_name,f)
-                    neural_networks.gridsearch(df_norm, model_name, f)
+                    neural_networks.gridsearch(df_norm, model_name, f, params)

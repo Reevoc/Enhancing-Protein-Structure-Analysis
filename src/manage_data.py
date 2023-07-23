@@ -1,14 +1,14 @@
 import csv
 import glob
 import os
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 
 import pandas as pd
 from Bio.PDB import PDBList
 
 import configuration as conf
 from src.features import generate_feature_file
-#import src.normalization as nm
+
 
 def _download_cif(x):
     pdbl = PDBList(obsolete_pdb=os.path.join(conf.PATH_PDB, "obsolete"))
@@ -47,7 +47,7 @@ def build_index(path_pdb, path_tsv, path_ring, generate_new=False, update_dssp=F
     list_of_ids = id_from_ring
     missing_pdb = id_from_ring.union(id_from_tsv) - id_from_pdb
     missing_tsv = id_from_ring if update_dssp else id_from_ring - id_from_tsv
-    missing_tsv = missing_tsv- missing_pdb
+    missing_tsv = missing_tsv - missing_pdb
 
     # list_of_ids = set(["1aba"])
     # missing_pdb = set()
@@ -69,7 +69,7 @@ def build_index(path_pdb, path_tsv, path_ring, generate_new=False, update_dssp=F
             f.writelines(",".join(errors))
         missing_tsv = missing_tsv.intersection(set(errors))
 
-    list_of_ids = (list_of_ids - missing_pdb) - missing_tsv 
+    list_of_ids = (list_of_ids - missing_pdb) - missing_tsv
 
     index = {
         id: {
@@ -178,10 +178,13 @@ def _import_data(index: dict, delete_unclassified=False) -> dict:
     for k in ring_dict.keys():
         try:
             interaction = ring_dict[k][-1]
-            if interaction:  # TODO removes "None" interactions in some files
+            if interaction != "":  # TODO removes "None" interactions in some files
                 tsv_dict[k].append(ring_dict[k][-1])
         except:
             pass
+
+    # remove from tsv_dict keys not present in ring_dict
+    tsv_dict = {k: v for k, v in tsv_dict.items() if k in ring_dict}
     return tsv_dict
 
 
