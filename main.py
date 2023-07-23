@@ -2,13 +2,13 @@ import argparse
 import datetime
 import sys
 
+from keras.models import load_model
+from keras.optimizers import Adam
+
 import configuration as conf
 import src.neural_networks as neural_networks
 from src.manage_data import build_index, check_resi, prepare_data
 from src.normalization import normalization_df
-
-from keras.models import load_model
-from keras.optimizers import Adam
 
 
 def parser():
@@ -19,9 +19,9 @@ def parser():
     parser.add_argument(
         "-n", "--normalization", help="normalization name", required=False
     )
-    # parser.add_argument(
-    #     "-d", "--manipulation", help="dataset manipulation type", required=False
-    # )
+    parser.add_argument(
+        "-d", "--manipulation", help="dataset manipulation type", required=False
+    )
 
     args = parser.parse_args()
 
@@ -35,8 +35,8 @@ def parser():
     if not args.normalization:
         error.append("Normalization name is required.")
 
-    # if not args.manipulation:
-    #     error.append("Dataset manipulation type is required.")
+    if not args.manipulation:
+        args.manipulation = False
 
     if error:
         parser.print_help()
@@ -45,7 +45,7 @@ def parser():
     return args
 
 
-def main(df, model_name, normalization_mode, f):
+def main(df, model_name, normalization_mode, remove_unclassified, f):
     print(model_name, normalization_mode)
     df = normalization_df(df, normalization_mode)
     neural_networks.kfold_train(df, model_name, f)
@@ -70,12 +70,11 @@ if __name__ == "__main__":
     df.to_csv("data.tsv")
 
     with open(out, "w") as f:
-        f.write(
-            f"model_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
-        )
+        header = f"model_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
+        f.write(header)
 
         if len(sys.argv) > 1:
-            main(df, args.model, args.normalization, f)
+            main(df, args.model, args.normalization, args.manipulation, f)
         else:
             ## gridsearch
             scales = ["StandardScaler"]
@@ -93,9 +92,11 @@ if __name__ == "__main__":
                     # neural_networks.kfold_train(df_norm,model_name,f)
                     neural_networks.gridsearch(df_norm, model_name, f, params)
 
+            ## Generate Model
             # df_norm = normalization_df(df, "StandardScaler")
             # neural_networks.train(df_norm, "model_3")
 
+            ## Predict
             # # df_norm = normalization_df(df, "StandardScaler")
             # model = load_model("model_3.h5")
             # neural_networks.predict(df_norm, model)

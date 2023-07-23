@@ -1,49 +1,10 @@
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 
-# path append parent directory
-import sys
 import configuration as conf
 
 # ------------------------------------------------------------------------
 # SETUP FIXED VALUES FOR NORMALIZATION -----------------------------------
 # ------------------------------------------------------------------------
-
-STRUCTURE_TYPE = [
-    "H",  # α-helix
-    "B",  # residue in isolated β-bridge
-    "E",  # extended strand, participates in β ladder
-    "G",  # 3-helix (310 helix)
-    "I",  # 5 helix (π-helix)
-    "T",  # hydrogen bonded turn
-    "S",  # bend
-    "L",  # "-", "C", "L" - loop coil or irregular ?? (autocompleted)
-    "-",
-]
-
-residue_letters = [
-    "A",
-    "R",
-    "N",
-    "D",
-    "C",
-    "E",
-    "Q",
-    "G",
-    "H",
-    "I",
-    "L",
-    "K",
-    "M",
-    "F",
-    "P",
-    "S",
-    "T",
-    "W",
-    "Y",
-    "V",
-    "X",
-]
-
 atchley_scale = []
 with open(conf.ATCHLEY_FILE) as f:
     next(f)
@@ -152,15 +113,6 @@ def normalization_interactions(df):
     label_encoder = LabelEncoder()
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
 
-    # print("\tNormalization interactions")
-    # interactions = list(df["Interaction"])
-    # interactions = map(
-    #     lambda x: [
-    #         1 if x and i in x else 0 for i in conf.INTERACTION_TYPES
-    #     ],  # FIXME there are some None
-    #     interactions,
-    # )
-    # df["Interaction"] = list(interactions)
     return df
 
 

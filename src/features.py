@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import pandas as pd
 from Bio.PDB import DSSP, HSExposureCB, NeighborSearch, PPBuilder, is_aa

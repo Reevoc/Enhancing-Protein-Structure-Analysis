@@ -16,17 +16,7 @@ def _download_cif(x):
 
 
 def build_index(path_pdb, path_tsv, path_ring, generate_new=False, update_dssp=False):
-    """
-    Build index of pdb files download and of which features has been calculated
-
-    input:
-      data_folder = path to data folder ["data/"]
-
-    output:
-      dictionary pdb:[.pdb, .tsv]
-    """
     print("Building Index")
-    # FETCH LIST OF IDS
     # Fetch list of ids from given files with interaction column
     ring_files = list(glob.glob(path_ring + "/*.tsv"))
     id_from_ring = set(map(lambda x: os.path.basename(x).split(".")[0], ring_files))
@@ -48,10 +38,6 @@ def build_index(path_pdb, path_tsv, path_ring, generate_new=False, update_dssp=F
     missing_pdb = id_from_ring.union(id_from_tsv) - id_from_pdb
     missing_tsv = id_from_ring if update_dssp else id_from_ring - id_from_tsv
     missing_tsv = missing_tsv - missing_pdb
-
-    # list_of_ids = set(["1aba"])
-    # missing_pdb = set()
-    # missing_tsv = set(["1aba"])
 
     with open(os.path.join(conf.PATH_PDB, "missing_pdb.txt"), "w+") as f:
         f.writelines(",".join(missing_pdb))
@@ -201,7 +187,7 @@ def print_id_removed_column(removed):
         print(f"ID: {id}, Count: {count}")
 
 
-def prepare_data(index) -> pd.DataFrame:
+def prepare_data(index, balanced=True) -> pd.DataFrame:
     print("Processing data")
     newdic = _import_data(index)
 
@@ -210,12 +196,26 @@ def prepare_data(index) -> pd.DataFrame:
         columns=conf.COLUMNS_BIG,
     )
 
-    # # NORMALIZE
-    # print("Normalization")
-    # normalize_df(df=df)
-    # if conf.DEBUG:
-    #     print("Results of normalization:")
-    #     print(df.shape)
-    #     print(df.head())
+    balance_interaction_types(df)
 
     return df
+
+
+def balance_interaction_types(df):
+    interaction_counts = df["Interaction"].value_counts()
+
+    interaction_subsets = {}
+    for interaction_type, count in interaction_counts.items():
+        interaction_subsets[interaction_type] = df[
+            df["Interaction"] == interaction_type
+        ]
+
+    target_samples = int(min(interaction_counts.values) * 4)
+    sampled_subsets = {}
+    for interaction_type, subset in interaction_subsets.items():
+        sampled_subsets[interaction_type] = subset.sample(
+            n=target_samples, random_state=42
+        )
+
+    uniform_training_set = pd.concat(sampled_subsets.values())
+    uniform_training_set = uniform_training_set.sample(frac=1, random_state=42)

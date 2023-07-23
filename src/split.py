@@ -1,9 +1,7 @@
 from typing import Tuple
 
-import configuration as conf
 import numpy as np
 import pandas as pd
-from sklearn import preprocessing
 from keras.utils import to_categorical
 
 
@@ -29,13 +27,7 @@ def create_Y(df):
 
 
 def get_dataset(df) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    # df = drop_useless_column(df)
-    # df = transform_alphabetical_numerical(df)
     X = create_X(df)
-    # Y = create_Y(df)
     Y = to_categorical(df["Interaction"])
-    # if conf.DEBUG:
-    #     print("X", X)
-    #     print("Y", Y)
 
     return X, Y

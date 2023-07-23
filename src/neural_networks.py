@@ -1,9 +1,8 @@
 import numpy as np
 from keras import Sequential
 from keras.layers import BatchNormalization, Dense, Dropout
-from keras.optimizers import Adam
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import KFold, train_test_split
+from sklearn.model_selection import KFold
 
 import configuration as conf
 import src.split as split
@@ -94,7 +93,6 @@ def train(
     dropout_rate=0.2,
 ):
     print("Start training ")
-    # tf_config.threading.set_inter_op_parallelism_threads(conf.MTHREAD)
     X, Y = split.get_dataset(df)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
@@ -126,14 +124,10 @@ def kfold_train(
     kfold=conf.KFOLDS,
 ):
     print("Start training ")
-    # tf_config.threading.set_inter_op_parallelism_threads(conf.MTHREAD)
     X, Y = split.get_dataset(df)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
-    # X_train, X_test, Y_train, Y_test = train_test_split(
-    #     X, Y, test_size=0.1, shuffle=True
-    # )
 
     accuracy_scores = []
     f1_scores = []
@@ -157,25 +151,20 @@ def kfold_train(
             validation_data=(X_test, Y_test),
         )
 
+        Y_test = np.argmax(Y_test, axis=1)
         y_pred = model.predict(X_test)
         y_pred = np.argmax(y_pred, axis=1)
-        # threshold = 0.5
-        # y_pred = (y_pred >= threshold).astype(int)
-        Y_test = np.argmax(Y_test, axis=1)
         print(Y_test)
         print(y_pred)
-        accuracy = accuracy_score(Y_test, y_pred)
-        f1 = f1_score(
-            Y_test, y_pred, average="micro"
-        )  # micro-averaged F1 score for multilabel
-        precision = precision_score(Y_test, y_pred, average="micro")
-        recall = recall_score(Y_test, y_pred, average="micro")
+        # threshold = 0.5
+        # y_pred = (y_pred >= threshold).astype(int)
 
-        # Append the performance metrics for this fold to the lists
-        accuracy_scores.append(accuracy)
-        f1_scores.append(f1)
-        precision_scores.append(precision)
-        recall_scores.append(recall)
+        accuracy_scores.append(accuracy_score(Y_test, y_pred))
+        f1_scores.append(
+            f1_score(Y_test, y_pred, average="micro")
+        )  # micro-averaged F1 score for multilabel
+        precision_scores.append(precision_score(Y_test, y_pred, average="micro"))
+        recall_scores.append(recall_score(Y_test, y_pred, average="micro"))
 
     # Step 6: Calculate Average Performance
     average_accuracy = np.mean(accuracy_scores)
@@ -229,9 +218,10 @@ def predict(df, model: Sequential):  # FIXME
 
     train_index, test_index = train_test_indices(X.shape[0], 0.5)
 
-    X_train, X_test = X[train_index], X[test_index]
-    Y_train, Y_test = Y[train_index], Y[test_index]
+    _, X_test = X[train_index], X[test_index]
+    _, Y_test = Y[train_index], Y[test_index]
     y_pred = model.predict(X_test)
+
     threshold = 0.5
     y_pred = (y_pred >= threshold).astype(int)
 
