@@ -73,14 +73,9 @@ if __name__ == "__main__":
         )
         if len(sys.argv) > 1:
             main(df, args.model, args.normalization, f)
-            # scale = args.normalization
-            # model = args.model
-            # f.write(f"### {scale}\n")
-            # main(df, scale, model, f)
         else:
-            # scales = ["StandardScaler", "MinMaxScaler"]
-            scales = ["MinMaxScaler"]
-            models = ["model_1", "model_2", "model_3"]
+            scales = ["StandardScaler", "MinMaxScaler"]
+            models = ["model_2", "model_3"]
 
             for scale in scales:
                 f.write(f"\n### {scale}\n")

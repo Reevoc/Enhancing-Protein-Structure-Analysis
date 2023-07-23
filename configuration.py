@@ -5,8 +5,8 @@ from multiprocessing import cpu_count
 DEBUG = False
 MTHREAD = cpu_count() * 2
 KFOLDS = 2
-EPOCHS = 2
-BATCH_SIZE = 512 
+BATCH_SIZE = 512
+EPOCHS = 15
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(ROOT_DIR)
