@@ -31,7 +31,7 @@ RAMA_SS_RANGES = [
 INTERACTION_TYPES = [
     "HBOND",
     "VDW",
-    "PIPSTACK",
+    "PIPISTACK",
     "IONIC",
     "SSBOND",
     "PICATION",
