@@ -113,12 +113,26 @@ def train(
     # model.save(f"{model_name}.h5")
     # model.evaluate(X_test, Y_test)
     Y_pred = model.predict(X_test)
+    print(Y_pred[0])
+    print(Y_test[0])
     Y_pred = np.argmax(Y_pred, axis=1)
+    print(Y_pred[0])
     Y_test = np.argmax(Y_test, axis=1)
+    print(Y_test[0])
     accuracy = accuracy_score(Y_test, Y_pred)
     precision = precision_score(Y_test, Y_pred, average="micro")
     f1 = f1_score(Y_test, Y_pred, average="micro")
     recall = recall_score(Y_test, Y_pred, average="micro")
+    print(
+        "accuracy ",
+        accuracy,
+        " f1_score ",
+        f1,
+        " recall ",
+        recall,
+        " precision ",
+        precision,
+    )
     if f:
         f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 

@@ -46,7 +46,7 @@ def create_X(df):
 
 def create_Y(df):
     Y = df["Interaction"]
-    Y = np.array([[i for i in j] for j in Y])
+    # Y = np.array([[i for i in j] for j in Y])
     return Y
 
 
