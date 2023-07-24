@@ -106,13 +106,13 @@ if __name__ == "__main__":
                                 dropout_rate=dropout_rate,
                                 f=f,
                             )
-            if False:
+            if True:
                 ######### KFOLD #########
                 KFOLD = 10
                 balanced = False
                 batch_size = 512
                 dropout_rate = 0.2
-                epoch = 20
+                epoch = 1
                 manipulations = [False]  # remove unclassified
                 models = ["model_2"]
                 optimizer = Adam(learning_rate=0.001)
@@ -124,7 +124,7 @@ if __name__ == "__main__":
                     for s in scale:
                         df_norm = normalization_df(
                             df,
-                            scale,
+                            s,
                         )
 
                         for mod in models:
@@ -148,7 +148,7 @@ if __name__ == "__main__":
                             )
                             f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
-            if True:
+            if False:
                 balanced = False
                 batch_size = 512
                 dropout_rate = 0.2

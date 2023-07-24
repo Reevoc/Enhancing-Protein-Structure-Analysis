@@ -110,7 +110,6 @@ def normalization_interactions(df):
     df["Interaction"] = df["Interaction"].apply(lambda x: str(set(x)))
     label_encoder = LabelEncoder()
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
-    print(set(df["Interaction"]))
     return df
 
 

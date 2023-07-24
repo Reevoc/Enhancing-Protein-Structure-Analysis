@@ -195,7 +195,6 @@ def prepare_data(index, remove_unclassified=True) -> pd.DataFrame:
         newdic.values(),
         columns=conf.COLUMNS_BIG,
     )
-    print(df.head())
 
     if remove_unclassified:
         print("\tremove unclassified")

@@ -157,7 +157,7 @@ def kfold_train(
     f=None,
 ):
     # print("Start training ")
-    # X, Y = split.get_dataset(df, balanced=balanced)
+    X, _ = split.get_dataset(df, balanced=balanced)
     # INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     # model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
@@ -168,7 +168,7 @@ def kfold_train(
     recall_scores = []
 
     # Perform cross-validation
-    for i, (train_index, test_index) in enumerate(kf.split(X)):
+    for train_index, test_index in kf.split(X):
         accuracy, f1, precision, recall = train(
             df,
             model_name,
