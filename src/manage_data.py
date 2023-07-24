@@ -187,7 +187,7 @@ def print_id_removed_column(removed):
         print(f"ID: {id}, Count: {count}")
 
 
-def prepare_data(index, balanced=True) -> pd.DataFrame:
+def prepare_data(index, remove_unclassified=True, balanced=True) -> pd.DataFrame:
     print("Processing data")
     newdic = _import_data(index)
 
@@ -195,5 +195,9 @@ def prepare_data(index, balanced=True) -> pd.DataFrame:
         newdic.values(),
         columns=conf.COLUMNS_BIG,
     )
+
+    if remove_unclassified:
+        print("\tremove unclassified")
+        df = df[~df["Interaction"].apply(lambda x: "Unclassified" in x)]
 
     return df

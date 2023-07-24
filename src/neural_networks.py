@@ -10,9 +10,7 @@ import src.split as split
 
 def get_dim(X, Y):
     input_dim = X.shape[1]
-    print("input_dim", input_dim)
     num_classes = Y.shape[1]
-    print("num_classes", num_classes)
     return input_dim, num_classes
 
 
@@ -91,9 +89,11 @@ def train(
     epochs=30,
     batch_size=conf.BATCH_SIZE,
     dropout_rate=0.2,
+    balanced=False,
+    f=None,
 ):
     print("Start training ")
-    X, Y = split.get_dataset(df)
+    X, Y = split.get_dataset(df, balanced=balanced)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
 
@@ -108,10 +108,19 @@ def train(
         epochs=epochs,
         batch_size=batch_size,
         verbose=True,
-        # validation_data=(X_test, Y_test),
+        validation_data=(X_test, Y_test),
     )
-    model.save(f"{model_name}.h5")
-    model.evaluate(X_test, Y_test)
+    # model.save(f"{model_name}.h5")
+    # model.evaluate(X_test, Y_test)
+    Y_pred = model.predict(X_test)
+    Y_pred = np.argmax(Y_pred, axis=1)
+    Y_test = np.argmax(Y_test, axis=1)
+    accuracy = accuracy_score(Y_test, Y_pred)
+    precision = precision_score(Y_test, Y_pred, average="micro")
+    f1 = f1_score(Y_test, Y_pred, average="micro")
+    recall = recall_score(Y_test, Y_pred, average="micro")
+    if f:
+        f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
 
 def kfold_train(
@@ -122,9 +131,10 @@ def kfold_train(
     batch_size=conf.BATCH_SIZE,
     dropout_rate=0.2,
     kfold=conf.KFOLDS,
+    balanced=False,
 ):
     print("Start training ")
-    X, Y = split.get_dataset(df, balanced=True)
+    X, Y = split.get_dataset(df, balanced=balanced)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
@@ -154,8 +164,8 @@ def kfold_train(
         Y_test = np.argmax(Y_test, axis=1)
         y_pred = model.predict(X_test)
         y_pred = np.argmax(y_pred, axis=1)
-        print(Y_test)
-        print(y_pred)
+        # print(Y_test)
+        # print(y_pred)
         # threshold = 0.5
         # y_pred = (y_pred >= threshold).astype(int)
 
@@ -185,7 +195,7 @@ def kfold_train(
     # print("Fold Accuracy:", accuracy)
 
 
-def gridsearch(df, model_name, f, param):
+def gridsearch(df, model_name, f, param, balanced=False):
     optimizers, dropout_rate, epochs = param
 
     for dr in dropout_rate:
@@ -199,6 +209,7 @@ def gridsearch(df, model_name, f, param):
                     optimizer=optimizer,
                     dropout_rate=dr,
                     kfold=conf.KFOLDS,
+                    balanced=balanced,
                 )
 
                 (
@@ -221,22 +232,30 @@ def predict(df, model: Sequential):  # FIXME
     _, X_test = X[train_index], X[test_index]
     _, Y_test = Y[train_index], Y[test_index]
     y_pred = model.predict(X_test)
+    # Labels
+    Y_test = np.argmax(Y_test, axis=1)
+    y_pred = np.argmax(y_pred, axis=1)
 
-    threshold = 0.5
-    y_pred = (y_pred >= threshold).astype(int)
+    print("accuracy", accuracy_score(Y_test, y_pred))
+    print("f1_score", f1_score(Y_test, y_pred, average="micro"))
+    print("recall", recall_score(Y_test, y_pred, average="micro"))
+    print("precision", precision_score(Y_test, y_pred, average="micro"))
 
-    count_t = [0, 0, 0, 0, 0, 0, 0]
-    count_c = [0, 0, 0, 0, 0, 0, 0]
-    count_w = [0, 0, 0, 0, 0, 0, 0]
-    print(conf.INTERACTION_TYPES)
-    for i, j in zip(Y_test, y_pred):
-        for k in range(7):
-            if i[k] == 1:
-                count_t[k] += 1
-            if j[k] == 1:
-                if i[k] == 1:
-                    count_c[k] += 1
-                else:
-                    count_w[k] += 1
-    print("Accuracy", accuracy_score(Y_test, y_pred))
-    print(f"count_t\t{count_t}\ncount_c\t{count_c}\ncount_w\t{count_w}")
+    # # # One Hot Encoding
+    # # threshold = 0.5
+    # # y_pred = (y_pred >= threshold).astype(int)
+    # count_t = [0, 0, 0, 0, 0, 0, 0]
+    # count_c = [0, 0, 0, 0, 0, 0, 0]
+    # count_w = [0, 0, 0, 0, 0, 0, 0]
+    # print(conf.INTERACTION_TYPES)
+    # for i, j in zip(Y_test, y_pred):
+    #     for k in range(get_dim(X, Y)[1]):
+    #         if i[k] == 1:
+    #             count_t[k] += 1
+    #         if j[k] == 1:
+    #             if i[k] == 1:
+    #                 count_c[k] += 1
+    #             else:
+    #                 count_w[k] += 1
+    # print("Accuracy", accuracy_score(Y_test, y_pred))
+    # print(f"count_t\t{count_t}\ncount_c\t{count_c}\ncount_w\t{count_w}")

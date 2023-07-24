@@ -17,12 +17,16 @@ def balance_interaction_types(df):
     target_samples = int(min(interaction_counts.values) * 4)
     sampled_subsets = {}
     for interaction_type, subset in interaction_subsets.items():
+        n = min(target_samples, subset.shape[0])
+        print(f"Sampling {n} from {interaction_type}")
         sampled_subsets[interaction_type] = subset.sample(
-            n=target_samples, random_state=42
+            n=n, random_state=42, replace=True
         )
 
     uniform_training_set = pd.concat(sampled_subsets.values())
     uniform_training_set = uniform_training_set.sample(frac=1, random_state=42)
+
+    return uniform_training_set
 
 
 def drop_useless_column(df):

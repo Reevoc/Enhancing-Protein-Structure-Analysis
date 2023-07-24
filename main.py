@@ -56,8 +56,6 @@ if __name__ == "__main__":
     now = datetime.datetime.now().strftime(r"%m-%d_%H:%M")
     out = f"./results{now}.csv"
 
-    conf.DEBUG = True
-
     index = build_index(
         path_pdb=conf.PATH_PDB,
         path_ring=conf.PATH_FEATURES_RING,
@@ -66,37 +64,64 @@ if __name__ == "__main__":
         update_dssp=False,
     )
 
-    df = prepare_data(index)
-    df.to_csv("data.tsv")
-
     with open(out, "w") as f:
-        header = f"model_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
+        header = f"manipulation\tscaler\tmodel_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
         f.write(header)
 
         if len(sys.argv) > 1:
+            df = prepare_data(index)
+            df.to_csv("data.tsv")
             main(df, args.model, args.normalization, args.manipulation, f)
         else:
-            ## gridsearch
-            scales = ["StandardScaler"]
-            models = ["model_2", "model_3"]
-            optimizers = [Adam(learning_rate=0.001)]
-            dropout_rate = [0.2]
-            epochs = [20]
-            conf.KFOLDS = 2
-            params = [optimizers, dropout_rate, epochs]
-            for scale in scales:
-                f.write(f"\n### {scale}\n")
-                df_norm = normalization_df(df, scale)
-                for model_name in models:
-                    print(f"Start training {model_name}\n")
-                    # neural_networks.kfold_train(df_norm,model_name,f)
-                    neural_networks.gridsearch(df_norm, model_name, f, params)
+            # ## gridsearch
+            manipulation = [True, False]  # remove unclassified
+            scales = ["MinMaxScaler", "StandardScaler"]
+            models = ["model_1", "model_2", "model_3"]
+            optimizer = Adam(learning_rate=0.001)
+            dropout_rate = 0.2
+            epoch = 20
 
-            ## Generate Model
+            for m in manipulation:
+                df = prepare_data(index, remove_unclassified=m)
+                for s in scales:
+                    df = normalization_df(df, s)
+                    for mod in models:
+                        f.write(f"{m}\t{s}\t{mod}\t")
+                        neural_networks.train(
+                            df=df,
+                            model_name=mod,
+                            epochs=epoch,
+                            batch_size=conf.BATCH_SIZE,
+                            optimizer=optimizer,
+                            dropout_rate=dropout_rate,
+                            f=f,
+                        )
+
+            # conf.KFOLDS = 2
+
+            # params = [optimizers, dropout_rate, epochs]
+            # for scale in scales:
+            #     f.write(f"\n### {scale}\n")
+            #     df_norm = normalization_df(df, scale)
+            #     for model_name in models:
+            #         print(f"Start training {model_name}\n")
+            #         # neural_networks.kfold_train(df_norm,model_name,f)
+            #         neural_networks.gridsearch(
+            #             df_norm, model_name, f, params, balanced=False
+            #         )
+
+            # # Generate Model
             # df_norm = normalization_df(df, "StandardScaler")
-            # neural_networks.train(df_norm, "model_3")
+            # neural_networks.train(
+            #     df_norm,
+            #     epochs=epochs[0],
+            #     dropout_rate=dropout_rate[0],
+            #     model_name="model_3",
+            #     optimizer=optimizers[0],
+            #     balanced=False,
+            # )
 
-            ## Predict
+            # # Predict
             # # df_norm = normalization_df(df, "StandardScaler")
             # model = load_model("model_3.h5")
             # neural_networks.predict(df_norm, model)
