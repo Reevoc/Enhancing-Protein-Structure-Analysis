@@ -91,13 +91,18 @@ def train(
     dropout_rate=0.2,
     balanced=False,
     f=None,
+    train_index=None,
+    test_index=None,
+    percent4test=0.2,
+    return_model=False,
 ):
     print("Start training ")
     X, Y = split.get_dataset(df, balanced=balanced)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
 
-    train_index, test_index = train_test_indices(X.shape[0], 0.2)
+    if train_index is None or test_index is None:
+        train_index, test_index = train_test_indices(X.shape[0], percent4test)
 
     X_train, X_test = X[train_index], X[test_index]
     Y_train, Y_test = Y[train_index], Y[test_index]
@@ -110,15 +115,14 @@ def train(
         verbose=True,
         validation_data=(X_test, Y_test),
     )
+
     # model.save(f"{model_name}.h5")
     # model.evaluate(X_test, Y_test)
+
     Y_pred = model.predict(X_test)
-    print(Y_pred[0])
-    print(Y_test[0])
     Y_pred = np.argmax(Y_pred, axis=1)
-    print(Y_pred[0])
     Y_test = np.argmax(Y_test, axis=1)
-    print(Y_test[0])
+
     accuracy = accuracy_score(Y_test, Y_pred)
     precision = precision_score(Y_test, Y_pred, average="micro")
     f1 = f1_score(Y_test, Y_pred, average="micro")
@@ -136,6 +140,10 @@ def train(
     if f:
         f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
+    if return_model:
+        return accuracy, f1, precision, recall, model
+    return accuracy, f1, precision, recall
+
 
 def kfold_train(
     df,
@@ -146,11 +154,12 @@ def kfold_train(
     dropout_rate=0.2,
     kfold=conf.KFOLDS,
     balanced=False,
+    f=None,
 ):
-    print("Start training ")
-    X, Y = split.get_dataset(df, balanced=balanced)
-    INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
-    model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
+    # print("Start training ")
+    # X, Y = split.get_dataset(df, balanced=balanced)
+    # INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
+    # model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
 
     accuracy_scores = []
@@ -160,35 +169,22 @@ def kfold_train(
 
     # Perform cross-validation
     for i, (train_index, test_index) in enumerate(kf.split(X)):
-        print(f"\n\n\tStarting {i} cross fold validation")
-        X_train, X_test = X[train_index], X[test_index]
-        Y_train, Y_test = Y[train_index], Y[test_index]
-
-        model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
-        # Train the model
-        model.fit(
-            X_train,
-            Y_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            verbose=True,
-            validation_data=(X_test, Y_test),
+        accuracy, f1, precision, recall = train(
+            df,
+            model_name,
+            optimizer,
+            epochs,
+            batch_size,
+            dropout_rate,
+            balanced=balanced,
+            train_index=train_index,
+            test_index=test_index,
         )
 
-        Y_test = np.argmax(Y_test, axis=1)
-        y_pred = model.predict(X_test)
-        y_pred = np.argmax(y_pred, axis=1)
-        # print(Y_test)
-        # print(y_pred)
-        # threshold = 0.5
-        # y_pred = (y_pred >= threshold).astype(int)
-
-        accuracy_scores.append(accuracy_score(Y_test, y_pred))
-        f1_scores.append(
-            f1_score(Y_test, y_pred, average="micro")
-        )  # micro-averaged F1 score for multilabel
-        precision_scores.append(precision_score(Y_test, y_pred, average="micro"))
-        recall_scores.append(recall_score(Y_test, y_pred, average="micro"))
+        accuracy_scores.append(accuracy)
+        f1_scores.append(f1)
+        precision_scores.append(precision)
+        recall_scores.append(recall)
 
     # Step 6: Calculate Average Performance
     average_accuracy = np.mean(accuracy_scores)
@@ -201,41 +197,7 @@ def kfold_train(
     print(f"Average F1 Score: {average_f1}")
     print(f"Average Precision: {average_precision}")
     print(f"Average Recall: {average_recall}")
-
     return average_accuracy, average_f1, average_precision, average_recall
-
-    # # Print the evaluation metrics for each fold
-    # print("Fold Loss:", loss)
-    # print("Fold Accuracy:", accuracy)
-
-
-def gridsearch(df, model_name, f, param, balanced=False):
-    optimizers, dropout_rate, epochs = param
-
-    for dr in dropout_rate:
-        for optimizer in optimizers:
-            for epoch in epochs:
-                print(f"Start training with {dr} {optimizer} {epoch}")
-                metrics = kfold_train(
-                    df,
-                    model_name,
-                    epochs=epoch,
-                    optimizer=optimizer,
-                    dropout_rate=dr,
-                    kfold=conf.KFOLDS,
-                    balanced=balanced,
-                )
-
-                (
-                    average_accuracy,
-                    average_f1,
-                    average_precision,
-                    average_recall,
-                ) = metrics
-
-                f.write(
-                    f"{model_name}\t{dr}\t{optimizer}\t{epochs}\t{average_accuracy}\t{average_f1}\t{average_precision}\t{average_recall}\n"
-                )
 
 
 def predict(df, model: Sequential):  # FIXME

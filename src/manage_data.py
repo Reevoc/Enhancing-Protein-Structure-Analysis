@@ -187,7 +187,7 @@ def print_id_removed_column(removed):
         print(f"ID: {id}, Count: {count}")
 
 
-def prepare_data(index, remove_unclassified=True, balanced=True) -> pd.DataFrame:
+def prepare_data(index, remove_unclassified=True) -> pd.DataFrame:
     print("Processing data")
     newdic = _import_data(index)
 
