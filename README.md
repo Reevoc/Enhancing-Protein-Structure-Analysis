@@ -1,14 +1,28 @@
-# Enhancing Protein Structure Analysis 
+# Enhancing Protein Structure Analysis
+
 ## Introduction
+
 The Residue Interaction Network Generator (RING) and Ribbon Diagrams have revolutionized the study of protein structures, enabling researchers to delve into the intricate details of residue interactions.
 The aim of this powerfull tool in the field of structural biology is to provide a simple and intuitive way to visualize the interactions between residues in a protein structure.
 In our case we are going to develop a software that will be able to predict the interactions between residues in a protein structure, given a dataset of protein structures and its corresponding interactions.
 In our code, we have prioritized flexibility, allowing us to experiment with different configurations and observe the prediction results in the output. This adaptability empowers us to fine-tune our analysis and explore various scenarios effortlessly.
 
 ## Example of usage
+
 In the README of your GitHub repository, you can include the following explanation to guide users on how to use the `main.py` script with various parameters:
 
 ## Running the Script
+
+**Create conda enviroment**:
+
+[Install conda enviroment](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if you don't have it.
+
+```bash
+conda create --name your_new_env_name --file requirements.txt
+conda activate your_new_env_name
+```
+
+**Usage of the script:**
 
 The `main.py` script allows you to train and evaluate different models with various normalization techniques and data options. To run the script, you can use the following command-line arguments:
 
@@ -19,7 +33,7 @@ python3 main.py -m [model] -n [normalization] -d [data_option]
 **Parameters:**
 
 - `[model]`: Choose one of the available models: "model_1", "model_2", or "model_3". Each model represents a specific machine learning model or architecture.
-- `[normalization]`: Choose one of the available normalization techniques: "MinMaxScaler", "StandardScaler", or "no_normalization". This parameter allows you to preprocess the data before training the models.
+- `[normalization]`: Choose one of the available normalization techniques: "MinMaxScaler" or "StandardScaler". This parameter allows you to preprocess the data before training the models.
 - `[data_option]`: Choose one of the available data options: "eliminate_unclassified" or "unclassified". This option determines how the unclassified data is handled during training and evaluation.
 
 **Example:**
@@ -34,9 +48,17 @@ Feel free to experiment with different combinations to find the best configurati
 
 By following these instructions, users can easily utilize the `main.py` script and explore various models, normalization techniques, and data options to identify the optimal configuration for their machine learning tasks.
 
-**REMEMBER**: The dataset is not included in the repository, so you have to download create it with the **collect_data.py** script.
+**REMEMBER**: you have to unpack the data with this command:
 
-# Dataset
+```bash
+cd data
+cat data_part_a* > data_all.tar.gz
+tar -xvzf data_all.tar.gz
+unzip feature_ring.zip
+```
+
+## Dataset
+
 The first look of the project were given to datasets provided to understand the problem and the data. The datasets provide different type of geometrical information about the protein structures. We are going to summarize, the data are devided in two parts the source amino acid and the target amino acid. The source amino acid is the amino acid that is going to interact with the target amino acid. The data for the source and target aminoacids are provided in a csv file with the following columns:
 
 - **pdb_id**: The id of the protein structure.
@@ -49,9 +71,8 @@ The first look of the project were given to datasets provided to understand the 
 - **psi**: The psi angle of the amino acid, ramachandran plot used to determine the angles.
 - **up**: Half sphere exposure of the amino acid.
 - **down**: Half sphere exposure of the amino acid.
-- **ss3**: 
+- **ss3**: secondary structure
 - **a1 to a5**: Atchley scale of the amino acid.
-
 
 ## Adding New data
 
@@ -61,7 +82,7 @@ The first step involved incorporating a new set of data obtained from the DSSP m
 
 These additions to the dataset, obtained through modifications and improvements to the code, significantly bolstered the quality and comprehensiveness of the data used for predicting amino acid interactions. The subsequent sections of the paper will delve into the details of the modifications made to the code and the specific improvements achieved:
 
-   ```python
+```python
    if file_extension == ".pdb":
         structure = PDBParser(QUIET=True).get_structure(pdb_id, 
         args.pdb_file)
@@ -70,7 +91,8 @@ These additions to the dataset, obtained through modifications and improvements 
         args.pdb_file)
     else:
         print("Error: Unsupported file extension.")
-   ```
+```
+
 By implementing these changes, our code is now capable of processing and extracting relevant data from both CIF and PDB files. This flexibility allows us to incorporate a broader range of structural data sources, enhancing the scope and versatility of our analysis.
 
 Overall, this modification provides us with greater flexibility in data acquisition and enables us to explore a wider range of structural information, contributing to a more comprehensive analysis of amino acid interactions.
@@ -81,13 +103,13 @@ First, we used an external software tool to generate the DSSP file separately. T
 
 The following code snippet demonstrates the implementation of this update:
 
-   ```python
+```python
    dssp = {}
     try:
         dssp = dict(DSSP(structure[0], args.pdb_file, dssp="mkdssp"))
     except Exception:
         logging.warning("{} DSSP error".format(pdb_id))
-   ``` 
+``` 
 
 By resolving the compatibility issues, we were able to obtain the required structural information from the DSSP module. This enabled us to incorporate a broader range of structural data sources, enhancing the scope and versatility of our analysis.
 
@@ -98,6 +120,7 @@ Furthermore, after the successful download of the PDB files, the script automati
 By utilizing the **collect_data.py** script, we ensure the availability of all the required PDB files for the feature_ring dataset. This enables us to generate accurate and up-to-date features for further analysis.
 
 ### New Features
+
 The new features added to the dataset consist of 8 features for the source amino acid and 8 features for the target amino acid. These features represent hydrogen bond interactions between the amino acids and are obtained from the official DSSP website.
 
 Example of the new features **"N-H-->O"**:
@@ -109,7 +132,7 @@ Also we have added all the bonds features that are present in the DSSP module.
 
 [DSSP official Documentation](https://swift.cmbi.umcn.nl/gv/dssp/)
 
-## Looking at the data
+### Looking at the data
 
 Upon careful examination of the data and file, we have observed instances where certain rows are identical, except for the interactions recorded. This occurs because a single amino acid can interact with multiple other amino acids. As a result, we encounter a challenge of having duplicated data entries within the dataset.
 
@@ -144,6 +167,14 @@ By adding the **unclassified** category, we acknowledge the presence of unobserv
 
 But also we have added a version of the code in which the unclassified interactions are not taken into account. This version of the code is called **"eliminate_unclassified"**.
 
+## Analysis of the interaction
+
+![In this figure, we observe the distribution of interactions in the dataset provided for the project. It is evident that the majority of interactions fall under the categories of **HBOND** and **Unclassified**. Conversely, **SSBOND** and **PICATION** are found to be almost non-existent in the dataset.](images/interaction_simple.png)
+
+![In this figure, we observe the distribution of interactions in the newly created dataset. As anticipated, the interactions that are most prevalent remain consistent with our previous findings, being primarily **HBOND** and **Unclassified** interactions. Additionally, we have discovered the emergence of new interaction pairs, which represent instances where certain interactions are highly likely to co-occur. These findings provide valuable insights into the relationship between different interactions within the dataset.](images/interaction_complex.png)
+
+![In this figure, we present the confusion matrix that illustrates the correlations among the data. However, a significant issue becomes apparent: certain interactions are overly represented compared to others. This imbalance in representation poses a considerable challenge and warrants further investigation.](images/confusion_matrix.png)
+
 ## Normalization of the data
 
 The normalization proposed is done by normalize the data depending on the type of data. The normalization is done by using the MinMaxScaler and StandardScaler from sklearn.
@@ -173,7 +204,8 @@ Deepley in the normalization:
 
 By applying these normalization techniques, the data is prepared in a standardized and comparable format. This ensures that the various features are on a consistent scale, allowing for accurate analysis, modeling, and interpretation of the data.
 
-## Splitting 
+## Splitting
+
 At this point, we have decided to utilize two primary libraries for machine learning and deep learning: TensorFlow with the assistance of Keras. These two libraries are widely recognized and extensively used in the field of machine learning and deep learning.
 
 To begin the modeling process, we need to partition our data into training, validation, and testing sets. We have chosen to achieve this using the train_test_split function from the sklearn library, which allows us to divide the data into training and testing subsets. Subsequently, we further split the training data into two subsets: one for training and the other for validation. This partitioning is facilitated by the implementation of the **split.py** script.
@@ -182,16 +214,146 @@ To begin the modeling process, we need to partition our data into training, vali
 
 In machine learning and statistical classification, multiclass classification or multinomial classification is the problem of classifying instances into one of three or more classes (classifying instances into one of two classes is called binary classification). Multiclass classification should not be confused with multi-label classification, where multiple labels are to be predicted for each instance.
 We take also in account to use this last possibility by codify our interaction as one hot encoding vector for our prediction.
-## Models
 
+### Models
 
-## K-fold
-K-fold cross-validation is a widely used technique in machine learning to assess the performance and generalization ability of a model. It involves partitioning the dataset into k equally sized folds, where k is a pre-defined value. The model is then trained and evaluated k times, each time using a different fold as the validation set and the remaining folds as the training set. This process allows us to obtain k sets of evaluation metrics, which are then averaged to provide a more robust estimate of the model's performance.
+We used different models to predict our labels, and among them, one stood out as the best performer that is **model 3**. The other models that were utilized but did not provide satisfactory results were used but does not provide good result.
 
-In summary, k-fold cross-validation helps to mitigate the potential bias introduced by a single train-test split and provides a more reliable evaluation of the model's performance across different data subsets. This technique is widely regarded for its ability to yield more accurate and stable performance metrics, making it a valuable tool in assessing the efficacy of machine learning models.
+#### Model1
 
+```python
+_____________________________________________________________
+ Layer (type)                Output Shape              Param    
+=================================================================
+ dense (Dense)               (None, 128)               5504      
+                                                                 
+ batch_normalization (BatchN (None, 128)               512       
+ ormalization)                                                   
+                                                                 
+ dropout (Dropout)           (None, 128)               0         
+                                                                 
+ dense_1 (Dense)             (None, 64)                8256      
+                                                                 
+ batch_normalization_1 (Batc (None, 64)                256       
+ hNormalization)                                                 
+                                                                 
+ dropout_1 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_2 (Dense)             (None, 32)                2080      
+                                                                 
+ batch_normalization_2 (Batc (None, 32)                128       
+ hNormalization)                                                 
+                                                                 
+ dropout_2 (Dropout)         (None, 32)                0         
+                                                                 
+ dense_3 (Dense)             (None, 7)                 231       
+                                                                 
+=================================================================
+Total params: 16,967
+Trainable params: 16,519
+Non-trainable params: 448
+_____________________________________________________________
+``` 
+
+#### Model2
+
+```python
+_________________________________________________________________
+ Layer (type)                Output Shape              Param    
+=================================================================
+ dense (Dense)               (None, 128)               5504      
+                                                                 
+ batch_normalization (Batch  (None, 128)               512       
+ Normalization)                                                   
+                                                                 
+ dropout (Dropout)           (None, 128)               0         
+                                                                 
+ dense_1 (Dense)             (None, 256)               33024     
+                                                                 
+ batch_normalization_1(Batc  (None, 256)               1024      
+ hNormalization)                                                 
+                                                                 
+ dropout_1 (Dropout)         (None, 256)               0         
+                                                                 
+ dense_2 (Dense)             (None, 512)               131584    
+                                                                 
+ batch_normalization_2(Batc  (None, 512)               2048      
+ hNormalization)                                                 
+                                                                 
+ dropout_2 (Dropout)         (None, 512)               0         
+                                                                 
+ dense_3 (Dense)             (None, 7)                 3591      
+                                                                 
+=================================================================
+Total params: 177,287
+Trainable params: 175,495
+Non-trainable params: 1,792
+_________________________________________________________________
+```
+
+#### Model3
+
+```python
+_________________________________________________________________
+ Layer (type)                Output Shape              Param   
+=================================================================
+ dense_4 (Dense)             (None, 896)               38528     
+                                                                 
+ dense_5 (Dense)             (None, 256)               229632    
+                                                                 
+ dense_6 (Dense)             (None, 7)                 1799      
+                                                                 
+=================================================================
+Total params: 269,959
+Trainable params: 269,959
+Non-trainable params: 0
+_________________________________________________________________
+```
 ## Results
 
+In this phase, we decided to run various models with different normalization techniques and data options for a limited number of epochs (20, in this case). After this preliminary investigation, we can determine which model performs best for our problem and further investigate it.
+
+From the tables, it is evident that using the StandardScaler for normalization consistently yields better results in each case compared to the MinMaxScaler. This difference in performance is likely attributed to the fact that the StandardScaler is more resilient to outliers than the MinMaxScaler.
+
+Regarding the models, there isn't a definitive winner that stands out. However, when we exclude the unclassified data, model 2 demonstrates superior performance compared to the other models. Conversely, when including the unclassified data, model 3 shows better performance than the other models. These observations suggest that the effectiveness of the models might be influenced by the presence of unclassified data and the specific data context in each scenario.
+
+**Not using unclassified data:**
+
+| manipulation    | scaler        | model_name | average_accuracy |
+|-----------------|---------------|------------|------------------|
+| no unclassified | StandardScaler| model_2    | 0.768782435129741|
+| no unclassified | StandardScaler| model_3    | 0.768086683775307|
+| no unclassified | StandardScaler| model_1    | 0.76311377245509 |
+| no unclassified | MinMaxScaler  | model_2    | 0.759190191046478|
+| no unclassified | MinMaxScaler  | model_3    | 0.749426860564585|
+| no unclassified | MinMaxScaler  | model_1    | 0.74783005417736 |
+
+**Using unclassifed data:**
+
+| manipulation  | scaler        | model_name | average_accuracy |
+|---------------|---------------|------------|------------------|
+| unclassified  | StandardScaler| model_3    | 0.642158056561844|
+| unclassified  | StandardScaler| model_2    | 0.640316295777649|
+| unclassified  | StandardScaler| model_1    | 0.630262717282109|
+| unclassified  | MinMaxScaler  | model_2    | 0.633185180675211|
+| unclassified  | MinMaxScaler  | model_3    | 0.623382751377515|
+| unclassified  | MinMaxScaler  | model_1    | 0.613884745349935|
+
+## K-fold
+
+K-fold cross-validation is a widely used technique in machine learning to assess the performance and generalization ability of a model. It involves partitioning the dataset into k equally sized folds, where k is a pre-defined value. The model is then trained and evaluated k times, each time using a different fold as the validation set and the remaining folds as the training set. This process allows us to obtain k sets of evaluation metrics, which are then averaged to provide a more robust estimate of the model's performance.
+
+So we furter investigate the model 3 with the best results for usage of unclassified data and model 2 the elimination of unclassified data.
+
+## Conclusion
+
+One of the primary challenges we encountered with this dataset is the pronounced overexpression of certain interactions. This imbalance poses difficulties in effectively predicting them using traditional Neural Networks. Surprisingly, even when exclusively predicting the **HBOND** interaction, the NN achieves remarkably high accuracy. To address this issue, we believe it is crucial to leverage the data and strive for a more balanced dataset. The problem of manipulation the data where limited to the fact that the task give us the first dataset and we have to work with it.
+
+This leads us to the challenging decision of determining the most suitable course of action for handling this data. Furthermore, the incorporation of novel features and interactions has not only increased the dataset's complexity but also enhanced its realism, capturing the intricacies of real-world scenarios, where multiple interactions can coexist.
+
+## Future Work
+
+A potential avenue for future research could involve implementing a mechanism to "penalize" mispredictions based on the overrepresentation of certain features. By introducing this approach, the model would become more sensitive to the imbalanced distribution and be incentivized to improve its performance on the underrepresented features. This would allow us to achieve a more balanced prediction.
 
 
 
