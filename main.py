@@ -1,5 +1,5 @@
 import argparse
-import datetime
+from datetime import datetime
 import sys
 
 from keras.models import load_model
@@ -45,15 +45,21 @@ def parser():
     return args
 
 
-def main(df, model_name, normalization_mode, remove_unclassified, f):
+def main(index, model_name, normalization_mode, remove_unclassified, f):
     print(model_name, normalization_mode)
+    df = prepare_data(
+        index,
+        remove_unclassified=(
+            True if remove_unclassified == "remove_unclassified" else False
+        ),
+    )
     df = normalization_df(df, normalization_mode)
-    neural_networks.kfold_train(df, model_name, f)
+    neural_networks.train(df, model_name, f)
 
 
 if __name__ == "__main__":
     args = parser()
-    now = datetime.datetime.now().strftime(r"%m-%d_%H:%M")
+    now = datetime.now().strftime(r"%m-%d_%H:%M")
     out = f"./results{now}.csv"
 
     index = build_index(
@@ -68,71 +74,106 @@ if __name__ == "__main__":
         header = f"manipulation\tscaler\tmodel_name\taverage_accuracy\taverage_f1\taverage_precision\taverage_recall\n"
         f.write(header)
 
+        ###### PASSING ARGUMENTS ######
         if len(sys.argv) > 1:
-            df = prepare_data(index)
-            df.to_csv("data.tsv")
-            main(df, args.model, args.normalization, args.manipulation, f)
+            main(index, args.model, args.normalization, args.manipulation, f)
+        # END
+        ###### DEFAULT ######
         else:
-            gridsearch = True
-            if gridsearch:
-                # ## gridsearch
-                manipulation = [True, False]  # remove unclassified
-                scales = ["MinMaxScaler", "StandardScaler"]
-                models = ["model_1", "model_2", "model_3"]
-                optimizer = Adam(learning_rate=0.001)
+            if False:
+                ######### IF GRIDSEARCH #########
+                # PARAMETERS
                 dropout_rate = 0.2
                 epoch = 20
+                manipulation = [True, False]  # remove unclassified
+                models = ["model_1", "model_2", "model_3"]
+                optimizer = Adam(learning_rate=0.001)
+                scales = ["MinMaxScaler", "StandardScaler"]
 
-                for m in manipulation:
-                    for s in scales:
+                # RUN
+                for m in manipulation:  # remove unclassified
+                    for s in scales:  # scaler
                         df = prepare_data(index, remove_unclassified=m)
                         df = normalization_df(df, s)
-                        for mod in models:
+                        for mod in models:  # models
                             f.write(f"{m}\t{s}\t{mod}\t")
                             neural_networks.train(
                                 df=df,
                                 model_name=mod,
+                                optimizer=optimizer,
                                 epochs=epoch,
                                 batch_size=conf.BATCH_SIZE,
-                                optimizer=optimizer,
                                 dropout_rate=dropout_rate,
                                 f=f,
                             )
-            else:
-                manipulation = [False, False]  # remove unclassified
-                scale = "StandardScaler"
-                model_name = "model_2"
-                epochs = 20
+            if False:
+                ######### KFOLD #########
+                KFOLD = 10
+                balanced = False
+                batch_size = 512
                 dropout_rate = 0.2
-                conf.KFOLDS = 10
-
+                epoch = 20
+                manipulations = [False]  # remove unclassified
+                models = ["model_2"]
                 optimizer = Adam(learning_rate=0.001)
-                params = [optimizer, dropout_rate, epoch]
+                scale = ["StandardScaler"]
 
-                for m in manipulation:
-                    df_norm = normalization_df(
-                        df,
-                        scale,
-                    )
-                    for model_name in models:
-                        print(f"Start training {model_name}\n")
-                        # neural_networks.kfold_train(df_norm,model_name,f)
-                        neural_networks.gridsearch(
-                            df_norm, model_name, f, params, balanced=False
+                for m in manipulations:
+                    df = prepare_data(index, remove_unclassified=m)
+
+                    for s in scale:
+                        df_norm = normalization_df(
+                            df,
+                            scale,
                         )
 
-                # # Generate Model
-                # df_norm = normalization_df(df, "StandardScaler")
-                # neural_networks.train(
-                #     df_norm,
-                #     epochs=epochs[0],
-                #     dropout_rate=dropout_rate[0],
-                #     model_name="model_3",
-                #     optimizer=optimizers[0],
-                #     balanced=False,
-                # )
+                        for mod in models:
+                            f.write(f"{m}\t{s}\t{mod}\t")
+                            print(f"Start training {mod}\n")
+                            (
+                                accuracy,
+                                f1,
+                                precision,
+                                recall,
+                            ) = neural_networks.kfold_train(
+                                df=df_norm,
+                                model_name=mod,
+                                optimizer=optimizer,
+                                epochs=epoch,
+                                dropout_rate=dropout_rate,
+                                batch_size=batch_size,
+                                kfold=KFOLD,
+                                balanced=balanced,
+                                f=f,
+                            )
+                            f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
-                # # Predict
-                # # df_norm = normalization_df(df, "StandardScaler")
-                # model = load_model("model_3.h5")
-                # neural_networks.predict(df_norm, model)
+            if True:
+                balanced = False
+                batch_size = 512
+                dropout_rate = 0.2
+                epoch = 4
+                manipulations = [False]  # remove unclassified
+                model_name = "model_2"
+                optimizer = Adam(learning_rate=0.001)
+                scale = "StandardScaler"
+
+                df = prepare_data(index, remove_unclassified=False)
+                df = normalization_df(df, "StandardScaler")
+                accuracy, f1, precision, recall, model = neural_networks.train(
+                    df=df,
+                    model_name=model_name,
+                    optimizer=optimizer,
+                    epochs=epoch,
+                    batch_size=batch_size,
+                    dropout_rate=dropout_rate,
+                    f=f,
+                    balanced=False,
+                    return_model=True,
+                )
+
+                # Predict
+                model.save(f"{model_name}.h5")
+                # df_norm = normalization_df(df, "StandardScaler")
+                model = load_model("model_3.h5")
+                neural_networks.predict(df, model)
