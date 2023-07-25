@@ -343,7 +343,26 @@ Regarding the models, there isn't a definitive winner that stands out. However, 
 
 K-fold cross-validation is a widely used technique in machine learning to assess the performance and generalization ability of a model. It involves partitioning the dataset into k equally sized folds, where k is a pre-defined value. The model is then trained and evaluated k times, each time using a different fold as the validation set and the remaining folds as the training set. This process allows us to obtain k sets of evaluation metrics, which are then averaged to provide a more robust estimate of the model's performance.
 
-So we furter investigate the model 3 with the best results for usage of unclassified data and model 2 the elimination of unclassified data.
+*So, we further investigated model 2 by eliminating the unclassified data in a 10-fold cross-validation with StandardScaler normalization:*
+
+| Index | Accuracy eliminare unclassified|
+|-------|----------------------|
+| 1     | 0.7736843305883158   |
+| 2     | 0.7742546250883956   |
+| 3     | 0.7743458722084084   |
+| 4     | 0.7754636494285649   |
+| 5     | 0.774236963365117    |
+| 6     | 0.7742597746247548   |
+| 7     | 0.7724804963730098   |
+| 8     | 0.776860258223459    |
+| 9     | 0.7734157580181578   |
+| 10    | 0.7745739900084404   |
+| Average| 0.7743575717926624|
+
+*And with unclassified data using the same normalization technique but model 3:*
+
+
+
 
 ## Conclusion
 

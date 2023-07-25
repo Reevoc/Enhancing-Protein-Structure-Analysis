@@ -4,7 +4,7 @@ from multiprocessing import cpu_count
 
 DEBUG = False
 MTHREAD = cpu_count() * 2
-KFOLDS = 2
+KFOLDS = 10
 BATCH_SIZE = 512
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

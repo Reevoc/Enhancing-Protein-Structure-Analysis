@@ -22,6 +22,7 @@ def parser():
     parser.add_argument(
         "-d", "--manipulation", help="dataset manipulation type", required=False
     )
+    parser.add_argument("-k", "--kfold", help="kfold", required=False)
 
     args = parser.parse_args()
 
@@ -45,7 +46,7 @@ def parser():
     return args
 
 
-def main(index, model_name, normalization_mode, remove_unclassified, f):
+def main(index, model_name, normalization_mode, remove_unclassified, kfold, f):
     print(model_name, normalization_mode)
     df = prepare_data(
         index,
@@ -53,8 +54,13 @@ def main(index, model_name, normalization_mode, remove_unclassified, f):
             True if remove_unclassified == "remove_unclassified" else False
         ),
     )
+
     df = normalization_df(df, normalization_mode)
-    neural_networks.train(df, model_name, f)
+
+    if kfold == "kfold":
+        neural_networks.kfold_train(df, model_name, f)
+    else:
+        neural_networks.train(df, model_name, f)
 
 
 if __name__ == "__main__":
@@ -76,7 +82,9 @@ if __name__ == "__main__":
 
         ###### PASSING ARGUMENTS ######
         if len(sys.argv) > 1:
-            main(index, args.model, args.normalization, args.manipulation, f)
+            main(
+                index, args.model, args.normalization, args.manipulation, args.kfold, f
+            )
         # END
         ###### DEFAULT ######
         else:
