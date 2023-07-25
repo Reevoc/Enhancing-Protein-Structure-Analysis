@@ -38,7 +38,17 @@ def drop_useless_column(df):
 
 def create_X(df):
     X = df.drop(
-        ["pdb_id", "s_ch", "s_resi", "s_ins", "t_ch", "t_resi", "t_ins", "Interaction"],
+        [
+            "pdb_id",
+            "s_ch",
+            "s_resi",
+            "s_ins",
+            "t_ch",
+            "t_resi",
+            "t_ins",
+            "Interaction",
+            "OrgInteraction",
+        ],
         axis=1,
     ).copy()
     return X.values

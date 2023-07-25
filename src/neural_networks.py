@@ -128,7 +128,7 @@ def train(
     return_model=False,
 ):
     print("Start training ")
-    X, Y = split.get_XY(df, balanced=balanced)
+    X, Y = split.get_dataset(df, balanced=balanced)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
 
@@ -197,7 +197,7 @@ def kfold_train(
     f=None,
 ):
     # print("Start training ")
-    X, _ = split.get_XY(df, balanced=balanced)
+    X, _ = split.get_dataset(df, balanced=balanced)
     # INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     # model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
@@ -241,7 +241,7 @@ def kfold_train(
 
 
 def test_predict(df, model: Sequential, p4test=0.3):  # FIXME
-    X, Y = split.get_XY(df)
+    X, Y = split.get_dataset(df)
 
     train_index, test_index = train_test_indices(X.shape[0], 0.4)
 
