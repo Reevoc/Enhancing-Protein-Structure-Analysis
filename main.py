@@ -51,7 +51,7 @@ def main(index, model_name, normalization_mode, remove_unclassified, kfold, f):
     df = prepare_data(
         index,
         remove_unclassified=(
-            True if remove_unclassified == "remove_unclassified" else False
+            True if remove_unclassified == "eliminate_unclassified" else False
         ),
     )
 
@@ -114,7 +114,7 @@ if __name__ == "__main__":
                                 dropout_rate=dropout_rate,
                                 f=f,
                             )
-            if True:
+            if False:
                 ######### KFOLD #########
                 KFOLD = 10
                 balanced = False
@@ -156,14 +156,14 @@ if __name__ == "__main__":
                             )
                             f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
-            if False:
+            if True:
                 ######### SINGLE TESTS #########
                 if True:  # new model
                     balanced = False
                     manipulation = True  # remove unclassified
                     batch_size = 512
                     dropout_rate = 0.2
-                    epoch = 15
+                    epoch = 30
                     model_name = "model_2"
                     optimizer = Adam(learning_rate=0.001)
                     scale = "StandardScaler"

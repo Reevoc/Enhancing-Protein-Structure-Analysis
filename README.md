@@ -169,11 +169,15 @@ But also we have added a version of the code in which the unclassified interacti
 
 ## Analysis of the interaction
 
-![In this figure, we observe the distribution of interactions in the dataset provided for the project. It is evident that the majority of interactions fall under the categories of **HBOND** and **Unclassified**. Conversely, **SSBOND** and **PICATION** are found to be almost non-existent in the dataset.](images/interaction_simple.png)
+![](data/images/interaction_simple.png)
+**Figure 1**: In this figure, we observe the distribution of interactions in the dataset provided for the project. It is evident that the majority of interactions fall under the categories of **HBOND** and **Unclassified**. Conversely, **SSBOND** and **PICATION** are found to be almost non-existent in the dataset.
 
-![In this figure, we observe the distribution of interactions in the newly created dataset. As anticipated, the interactions that are most prevalent remain consistent with our previous findings, being primarily **HBOND** and **Unclassified** interactions. Additionally, we have discovered the emergence of new interaction pairs, which represent instances where certain interactions are highly likely to co-occur. These findings provide valuable insights into the relationship between different interactions within the dataset.](images/interaction_complex.png)
+![](data/images/interaction_complex.png)
+**Figure 2**: In this figure, we observe the distribution of interactions in the newly created dataset. As anticipated, the interactions that are most prevalent remain consistent with our previous findings, being primarily **HBOND** and **Unclassified** interactions. Additionally, we have discovered the emergence of new interaction pairs, which represent instances where certain interactions are highly likely to co-occur. These findings provide valuable insights into the relationship between different interactions within the dataset.
 
-![In this figure, we present the confusion matrix that illustrates the correlations among the data. However, a significant issue becomes apparent: certain interactions are overly represented compared to others. This imbalance in representation poses a considerable challenge and warrants further investigation.](images/confusion_matrix.png)
+![](data/images/confusion_matrix.png)
+
+**Figure 3**: In this figure, we present the confusion matrix that illustrates the correlations among the data. However, a significant issue becomes apparent: certain interactions are overly represented compared to others. This imbalance in representation poses a considerable challenge and warrants further investigation.
 
 ## Normalization of the data
 
@@ -339,6 +343,8 @@ Regarding the models, there isn't a definitive winner that stands out. However, 
 | unclassified  | MinMaxScaler  | model_3    | 0.623382751377515|
 | unclassified  | MinMaxScaler  | model_1    | 0.613884745349935|
 
+Also at the end of the pdf in the images section we have provided a confusion matrix to better explain the result.
+
 ## K-fold
 
 K-fold cross-validation is a widely used technique in machine learning to assess the performance and generalization ability of a model. It involves partitioning the dataset into k equally sized folds, where k is a pre-defined value. The model is then trained and evaluated k times, each time using a different fold as the validation set and the remaining folds as the training set. This process allows us to obtain k sets of evaluation metrics, which are then averaged to provide a more robust estimate of the model's performance.
@@ -361,10 +367,19 @@ K-fold cross-validation is a widely used technique in machine learning to assess
 
 *And with unclassified data using the same normalization technique but model 3:*
 
-
-
-
-
+| Index | Accuracy unclassified|
+|-------|----------------------|
+|1      |0.64492207560310100|
+|2      |0.64016480273069900|
+|3      |0.63174276922631000|
+|4      |0.63247296595841300|
+|5      |0.63203139471985700|
+|6      |0.65296461385378700|
+|7       |0.63482979946338000|
+|8       |0.63916353538767000|
+|9       |0.64159487202740200|
+|10      |0.65337037281582800|
+|Average  |0.64032572017864400|
 
 ## Conclusion
 
@@ -372,10 +387,70 @@ One of the primary challenges we encountered with this dataset is the pronounced
 
 This leads us to the challenging decision of determining the most suitable course of action for handling this data. Furthermore, the incorporation of novel features and interactions has not only increased the dataset's complexity but also enhanced its realism, capturing the intricacies of real-world scenarios, where multiple interactions can coexist.
 
+Furthermore, we attempted to perform a basic training without adding any data and used our model, which resulted in very poor performance. In comparison, when we added additional data, the prediction of interactions significantly improved. This suggests that incorporating more data is an effective approach to enhance the performance of our interaction prediction model.
+
 ## Future Work
 
 A potential avenue for future research could involve implementing a mechanism to "penalize" mispredictions based on the overrepresentation of certain features. By introducing this approach, the model would become more sensitive to the imbalanced distribution and be incentivized to improve its performance on the underrepresented features. This would allow us to achieve a more balanced prediction.
 
+## Images
+
+![](data/images/CM_NO_unclassified.png)
+
+**Figure 4**: The image represents a confusion matrix, where the diagonal elements show the correct predictions. Above the matrix, there is a bar histogram representing the predicted classes, and on the right side, there is another histogram showing the distribution of correct labels. Notably, both histograms are very similar, indicating that the predictions closely match the actual labels. This similarity between the two histograms suggests that the model's predictions were accurate and aligned well with the true data.
+Below also there is the legend of the prediction labels
+
+**Labels for figure 4:**
+
+| Index | Interactions                     |
+|-------|----------------------------------|
+| 0     | {'HBOND', 'PICATION', 'VDW'}     |
+| 1     | {'HBOND', 'PICATION'}            |
+| 2     | {'HBOND', 'SSBOND', 'VDW'}       |
+| 3     | {'HBOND', 'VDW'}                 |
+| 4     | {'HBOND'}                        |
+| 5     | {'IONIC', 'HBOND', 'VDW'}        |
+| 6     | {'IONIC', 'HBOND'}               |
+| 7     | {'IONIC', 'VDW'}                 |
+| 8     | {'IONIC'}                        |
+| 9     | {'PICATION', 'VDW'}              |
+| 10    | {'PICATION'}                     |
+| 11    | {'PIPISTACK', 'HBOND', 'VDW'}    |
+| 12    | {'PIPISTACK', 'HBOND'}           |
+| 13    | {'PIPISTACK', 'VDW'}             |
+| 14    | {'PIPISTACK'}                    |
+| 15    | {'SSBOND', 'VDW'}                |
+| 16    | {'VDW'}                         |
+
+![](data/images/CM_unclassified.png)
+
+**Figures 5**: The image represents a confusion matrix, where the diagonal elements show the correct predictions. Above the matrix, there is a bar histogram representing the predicted classes, and on the right side, there is another histogram showing the distribution of correct labels. Notably, both histograms are very similar, indicating that the predictions closely match the actual labels. In this case the metrix seems more sparse then the other with some row/colums under represented.
+
+**Labels for figure 5:**
+
+| Index | Interactions                   |
+|-------|-------------------------------|
+| 0     | {'HBOND', 'IONIC'}            |
+| 1     | {'HBOND', 'PIPISTACK', 'VDW'} |
+| 2     | {'HBOND', 'PIPISTACK'}        |
+| 3     | {'HBOND', 'SSBOND', 'VDW'}    |
+| 4     | {'HBOND', 'Unclassified', 'VDW'} |
+| 5     | {'HBOND', 'Unclassified'}     |
+| 6     | {'HBOND', 'VDW', 'IONIC'}     |
+| 7     | {'HBOND', 'VDW'}              |
+| 8     | {'HBOND'}                    |
+| 9     | {'IONIC'}                    |
+| 10    | {'PICATION', 'HBOND', 'VDW'}  |
+| 11    | {'PICATION', 'HBOND'}         |
+| 12    | {'PICATION', 'VDW'}           |
+| 13    | {'PICATION'}                 |
+| 14    | {'PIPISTACK', 'VDW'}          |
+| 15    | {'PIPISTACK'}                |
+| 16    | {'SSBOND', 'VDW'}            |
+| 17    | {'Unclassified', 'VDW'}       |
+| 18    | {'Unclassified'}             |
+| 19    | {'VDW', 'IONIC'}             |
+| 20    | {'VDW'}                      |
 
 
 
