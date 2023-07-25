@@ -82,6 +82,37 @@ def train_test_indices(dim, percentage):
     return indices[:split], indices[split:]
 
 
+def calculate_metrics(predicted_labels, correct_labels):
+    # Initialize counters for true positives, false positives, true negatives, and false negatives
+    TP, FP, TN, FN = 0, 0, 0, 0
+
+    # Calculate the metrics
+    for predicted, correct in zip(predicted_labels, correct_labels):
+        if predicted == correct:
+            if predicted != 0:  # Exclude the case of correct = 0 (unlabeled)
+                TP += 1
+        else:
+            if predicted != 0:  # Exclude the case of predicted = 0 (unlabeled)
+                FP += 1
+            if correct != 0:  # Exclude the case of correct = 0 (unlabeled)
+                FN += 1
+
+    # Calculate true negatives (assuming 0 labels as negative)
+    TN = len(correct_labels) - TP - FP - FN
+
+    # Calculate accuracy, precision, recall, and F1-score
+    accuracy = (TP + TN) / (TP + TN + FP + FN)
+    precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+    recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+    f1_score = (
+        2 * (precision * recall) / (precision + recall)
+        if (precision + recall) > 0
+        else 0
+    )
+
+    return accuracy, precision, recall, f1_score
+
+
 def train(
     df,
     model_name,
@@ -97,7 +128,7 @@ def train(
     return_model=False,
 ):
     print("Start training ")
-    X, Y = split.get_dataset(df, balanced=balanced)
+    X, Y = split.get_XY(df, balanced=balanced)
     INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
 
@@ -117,16 +148,25 @@ def train(
     )
 
     # model.save(f"{model_name}.h5")
-    # model.evaluate(X_test, Y_test)
+    loss, accuracy = model.evaluate(X_test, Y_test)
+    print("Loss", loss, "Accuracy", accuracy, " of evaluation")
 
     Y_pred = model.predict(X_test)
     Y_pred = np.argmax(Y_pred, axis=1)
     Y_test = np.argmax(Y_test, axis=1)
 
-    accuracy = accuracy_score(Y_test, Y_pred)
-    precision = precision_score(Y_test, Y_pred, average="micro")
-    f1 = f1_score(Y_test, Y_pred, average="micro")
-    recall = recall_score(Y_test, Y_pred, average="micro")
+    # write Y_pred and Y_test in a csv file
+    with open(f"output.csv", "w") as ff:
+        ff.write("Y_pred\tY_test\n")
+        for i, j in zip(Y_pred, Y_test):
+            ff.write(f"{i}\t{j}\n")
+
+    # tmet = "weighted"  # "micro"
+    # accuracy = accuracy_score(Y_test, Y_pred)
+    # precision = precision_score(Y_test, Y_pred, average=tmet)
+    # f1 = f1_score(Y_test, Y_pred, average=tmet)
+    # recall = recall_score(Y_test, Y_pred, average=tmet)
+    accuracy, precision, recall, f1 = calculate_metrics(Y_pred, Y_test)
     print(
         "accuracy ",
         accuracy,
@@ -157,7 +197,7 @@ def kfold_train(
     f=None,
 ):
     # print("Start training ")
-    X, _ = split.get_dataset(df, balanced=balanced)
+    X, _ = split.get_XY(df, balanced=balanced)
     # INPUT_DIM, NUM_CLASSES = get_dim(X, Y)
     # model = get_model(model_name)(INPUT_DIM, NUM_CLASSES, optimizer, dropout_rate)
     kf = KFold(n_splits=kfold, shuffle=True, random_state=1)
@@ -200,10 +240,10 @@ def kfold_train(
     return average_accuracy, average_f1, average_precision, average_recall
 
 
-def predict(df, model: Sequential):  # FIXME
-    X, Y = split.get_dataset(df)
+def test_predict(df, model: Sequential, p4test=0.3):  # FIXME
+    X, Y = split.get_XY(df)
 
-    train_index, test_index = train_test_indices(X.shape[0], 0.5)
+    train_index, test_index = train_test_indices(X.shape[0], 0.4)
 
     _, X_test = X[train_index], X[test_index]
     _, Y_test = Y[train_index], Y[test_index]
@@ -212,10 +252,9 @@ def predict(df, model: Sequential):  # FIXME
     Y_test = np.argmax(Y_test, axis=1)
     y_pred = np.argmax(y_pred, axis=1)
 
-    print("accuracy", accuracy_score(Y_test, y_pred))
-    print("f1_score", f1_score(Y_test, y_pred, average="micro"))
-    print("recall", recall_score(Y_test, y_pred, average="micro"))
-    print("precision", precision_score(Y_test, y_pred, average="micro"))
+    accuracy, precision, recall, f1 = calculate_metrics(y_pred, Y_test)
+
+    return accuracy, precision, recall, f1
 
     # # # One Hot Encoding
     # # threshold = 0.5

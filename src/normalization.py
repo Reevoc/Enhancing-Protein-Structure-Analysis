@@ -107,15 +107,20 @@ def normalization_dssp(df, scaler):
 
 
 def normalization_interactions(df):
-    df["Interaction"] = df["Interaction"].apply(lambda x: str(set(x)))
+    df["Interaction"] = df["Interaction"].apply(lambda x: str(set(sorted(x))))
+    df["OrgInteraction"] = df["Interaction"]
     label_encoder = LabelEncoder()
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
     return df
 
 
 def normalization_df(df, scale):
-    print(f"normalization df {scale}")
+    print("Start normalization dataframe")
+    df = normalization_category(df)
+    df = normalization_interactions(df)
+
     if scale != "no_normalization":
+        print(f"\tNormalization using {scale}")
         if scale == "MinMaxScaler":
             scaler = MinMaxScaler()
         elif scale == "StandardScaler":
@@ -129,6 +134,4 @@ def normalization_df(df, scale):
         df = normalization_half_sphere(df, scaler)
         df = normalization_dssp(df, scaler)
 
-    df = normalization_category(df)
-    df = normalization_interactions(df)
     return df

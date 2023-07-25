@@ -112,7 +112,7 @@ if __name__ == "__main__":
                 balanced = False
                 batch_size = 512
                 dropout_rate = 0.2
-                epoch = 1
+                epoch = 30
                 manipulations = [False]  # remove unclassified
                 models = ["model_2"]
                 optimizer = Adam(learning_rate=0.001)
@@ -149,31 +149,45 @@ if __name__ == "__main__":
                             f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
             if False:
-                balanced = False
-                batch_size = 512
-                dropout_rate = 0.2
-                epoch = 4
-                manipulations = [False]  # remove unclassified
-                model_name = "model_2"
-                optimizer = Adam(learning_rate=0.001)
-                scale = "StandardScaler"
+                ######### SINGLE TESTS #########
+                if True:  # new model
+                    balanced = False
+                    manipulation = True  # remove unclassified
+                    batch_size = 512
+                    dropout_rate = 0.2
+                    epoch = 15
+                    model_name = "model_2"
+                    optimizer = Adam(learning_rate=0.001)
+                    scale = "StandardScaler"
 
-                df = prepare_data(index, remove_unclassified=False)
-                df = normalization_df(df, "StandardScaler")
-                accuracy, f1, precision, recall, model = neural_networks.train(
-                    df=df,
-                    model_name=model_name,
-                    optimizer=optimizer,
-                    epochs=epoch,
-                    batch_size=batch_size,
-                    dropout_rate=dropout_rate,
-                    f=f,
-                    balanced=False,
-                    return_model=True,
+                    df = prepare_data(index, remove_unclassified=manipulation)
+                    df = normalization_df(df, scale)
+
+                    accuracy, f1, precision, recall, model = neural_networks.train(
+                        df=df,
+                        model_name=model_name,
+                        optimizer=optimizer,
+                        epochs=epoch,
+                        batch_size=batch_size,
+                        dropout_rate=dropout_rate,
+                        f=f,
+                        balanced=False,
+                        return_model=True,
+                    )
+
+                    # Predict
+                    model.save(f"{model_name}.h5")
+                else:
+                    df = prepare_data(index, remove_unclassified=True)
+                    df = normalization_df(df, "StandardScaler")
+                model = load_model("model_2.h5")
+
+                labels_corr = list(set(zip(df["Interaction"], df["OrgInteraction"])))
+
+                accuracy, precision, recall, f1 = neural_networks.test_predict(
+                    df, model
                 )
 
-                # Predict
-                model.save(f"{model_name}.h5")
-                # df_norm = normalization_df(df, "StandardScaler")
-                model = load_model("model_3.h5")
-                neural_networks.predict(df, model)
+                print(
+                    f"Accuracy: {accuracy},  Precision: {precision}, Recall: {recall},F1: {f1}"
+                )
