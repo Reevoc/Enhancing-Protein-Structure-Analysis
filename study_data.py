@@ -2,21 +2,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
+import pandas as pd
+
+with open("output.csv", "r") as f:
+    df = pd.read_csv(f, delimiter="\t")
+    y_test = df["Y_test"]
+    y_pred = df["Y_pred"]
+    y_test = y_test.to_numpy()
+    y_pred = y_pred.to_numpy()
 
 
-def plot_confusion_matrix(confusion_matrix, ax, ax_histx, ax_histy):
+def plot_confusion_matrix(
+    cm, ax, ax_histx, ax_histy
+):  # Use 'cm' instead of 'confusion_matrix'
     # Draw the heatmap for the confusion matrix.
-    im = ax.imshow(confusion_matrix, cmap="viridis")
+    im = ax.imshow(cm, cmap="viridis")
 
     # Draw the marginals.
     ax_histx.bar(
-        np.arange(confusion_matrix.shape[1]),
-        np.sum(confusion_matrix, axis=0),
+        np.arange(cm.shape[1]),
+        np.sum(cm, axis=0),
         color="green",
     )
     ax_histy.barh(
-        np.arange(confusion_matrix.shape[0]),
-        np.sum(confusion_matrix, axis=1),
+        np.arange(cm.shape[0]),
+        np.sum(cm, axis=1),
         color="green",
     )
 
@@ -32,7 +42,7 @@ def plot_confusion_matrix(confusion_matrix, ax, ax_histx, ax_histy):
     fig.colorbar(im, ax=ax, shrink=0.6)
 
 
-# Sample confusion matrix.
+# Calculate the confusion matrix.
 cm = confusion_matrix(y_test, y_pred)
 
 # Start with a square Figure.
@@ -60,9 +70,12 @@ ax_histx = fig.add_subplot(gs[0, 0], sharex=ax)
 ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
 
 # Draw the scatter plot and marginals.
-plot_confusion_matrix(confusion_matrix, ax, ax_histx, ax_histy)
+plot_confusion_matrix(
+    cm, ax, ax_histx, ax_histy
+)  # Pass 'cm' instead of 'confusion_matrix'
 
 plt.show()
+
 
 # %%
 # read all files .tsv insife data/features_ring
