@@ -122,7 +122,7 @@ if __name__ == "__main__":
                 dropout_rate = 0.2
                 epoch = 30
                 manipulations = [False]  # remove unclassified
-                models = ["model_2"]
+                models = ["model_3"]
                 optimizer = Adam(learning_rate=0.001)
                 scale = ["StandardScaler"]
 

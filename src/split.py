@@ -55,8 +55,13 @@ def create_X(df):
 
 
 def create_Y(df):
-    Y = df["Interaction"]
+    Y = to_categorical(df["Interaction"])
     # Y = np.array([[i for i in j] for j in Y])
+    # write in label.csv Y and df["OrgInteraction"]
+    with open(f"label.csv", "w") as ff:
+        ff.write("Y\tOrgInteraction\n")
+        for i, j in zip(map(np.argmax, Y), df["OrgInteraction"]):
+            ff.write(f"{i}\t{j}\n")
     return Y
 
 
@@ -64,6 +69,6 @@ def get_dataset(df, balanced=False) -> Tuple[pd.DataFrame, pd.DataFrame]:
     if balanced:
         df = balance_interaction_types(df)
     X = create_X(df)
-    Y = to_categorical(df["Interaction"])
 
+    Y = create_Y(df)
     return X, Y
