@@ -3,7 +3,7 @@ from keras import Sequential
 from keras.layers import BatchNormalization, Dense, Dropout
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import KFold
-
+from keras.optimizers import Adam
 import configuration as conf
 import src.split as split
 
@@ -44,7 +44,7 @@ def create_model_2(input_dim, num_classes, optimizer="adam", dropout_rate=0.2):
     model.add(BatchNormalization())
     model.add(Dropout(dropout_rate))
     model.add(Dense(num_classes, activation="softmax"))
-
+    optimizer = Adam(learning_rate=0.001)  # Replace with your desired learning rate
     model.compile(optimizer=optimizer, loss="binary_crossentropy", metrics=["accuracy"])
     model.summary()
     return model
