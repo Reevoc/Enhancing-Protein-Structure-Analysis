@@ -113,7 +113,7 @@ def normalization_interactions(df):
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
 
     # write all labels in labelorg.csv
-    with open(f"labelorg.csv", "w") as ff:
+    with open(f"label.csv", "w") as ff:
         ff.write("Y\tOrgInteraction\n")
         for i, j in zip(
             range(max(df["Interaction"]) + 1),

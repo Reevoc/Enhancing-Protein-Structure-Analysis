@@ -110,8 +110,7 @@ if __name__ == "__main__":
 
         print(y_pred)
 
-        # write in output.out the y pred line by line transformed into labels string taken from labelorg.csv with \t delimiter
-        with open("labelorg.csv", "r") as ff, open(args.output, "w") as out:
+        with open("label.csv", "r") as ff, open(args.output, "w") as out:
             next(ff)
             labels = {}
             for line in ff:
