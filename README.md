@@ -16,13 +16,13 @@ In our code, we have prioritized flexibility, allowing us to experiment with dif
 
 #### Conda environment
 
-In the GitHub repository is provided the `requirements.txt` file which contains all the librarie necessary correct execution of the software.
+In the [GitHub repository (www.github.com)](https://github.com/Reevoc/Enhancing-Protein-Structure-Analysis) is provided the `requirements.txt` file which contains all the librarie necessary correct execution of the software.
 
  [Install conda enviroment](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)  and execute
 
 ```bash
-$ conda create --name your_new_env_name --file requirements.txt
-$ conda activate your_new_env_name
+conda create --name your_new_env_name --file requirements.txt
+conda activate your_new_env_name
 ```
 
 #### Dataset
@@ -37,7 +37,7 @@ Data will be better explained in [[#Dataset]]
 In order to extract the dataset is provided a bash script  to be executed with
 
 ```bash
-$ ./data/unpack.sh
+./data/unpack.sh
 ```
 
 ## Code
@@ -158,7 +158,7 @@ Also we have added all the bonds features that are present in the DSSP module.
 
 [DSSP official Documentation](https://swift.cmbi.umcn.nl/gv/dssp/)
 
-## Data preprocessing
+### Data preprocessing
 
 In our research, we encountered a challenge where not all interaction types could be accurately classified using the ring-based method. This resulted in a considerable number of interactions being labeled as **unclassified** in our dataset. The presence of unclassified interactions poses a significant issue as it negatively impacts the quality of our data, ultimately reducing the neural network's capability to learn effectively.
 
@@ -166,7 +166,7 @@ To better understand the impact of these unclassified interactions, we conducted
 
 During the experimentation process, it became evident that using the unclassified labels resulted in non-coherent data for the training of the neural network. As a consequence, the overall performance of the model deteriorated compared to the version where unclassified interactions were removed.
 
-## Analysis of the interactions
+### Analysis of the interactions
 
 ![](data/images/interaction_simple.png)
 **Figure 1**: In this figure, we observe the distribution of interactions in the dataset provided for the project. It is evident that the majority of interactions fall under the categories of **HBOND** and **Unclassified**. Conversely, **SSBOND** and **PICATION** are found to be almost non-existent in the dataset.
@@ -178,7 +178,7 @@ During the experimentation process, it became evident that using the unclassifie
 
 **Figure 3**: In this matrix, we counted how many times two interaction types appeared together in the same residue-residue interaction, as identified by the RING algorithm. However, a significant issue becomes apparent: certain interactions are overly represented compared to others. This imbalance in representation poses a considerable challenge and warrants further investigation.
 
-## Normalization of the data
+### Normalization of the data
 
 Normalization in neural networks is crucial for achieving consistent scaling, stable learning, gradient prevention, and improved model generalization. It enables efficient optimization, accommodates diverse data, and enhances activation function performance. We utilized several transforms from scikit-learn in Python:
 
@@ -195,12 +195,11 @@ Particular care was given to :
 
 By applying these normalization techniques, the data is prepared in a standardized and comparable format. This ensures that the various features are on a consistent scale, allowing for accurate analysis, modeling, and interpretation of the data.
 
-# Multiclass Classification Problem
+## Multiclass Classification Problem
 
 In the field of machine learning, classification tasks involve the categorization of data into predefined classes or labels. Two common types of classification tasks are multilabel classification and multiclass classification. In multilabel classification, each instance can be associated with multiple labels simultaneously, allowing for the presence of more than one label per data point. For example, in our scenario, an interaction can be classified as both "type A" and "type B" simultaneously. On the other hand, multiclass classification assigns each instance to only one label from a set of predefined classes, restricting each data point to a single label.
 
 In our implementation, we have generated and labeled unique type interactions. The task is to infer the label for each interaction between residues, as determined by the DSSP algorithm. Each residue will be assigned one label representing its type or combination of types, but not multiple labels.
-
 
 ### Neural Network Models
 
@@ -371,7 +370,7 @@ Similarly, for model3, keeping the "Unclassified" label
 |10      |0.65337037281582800|
 |Average  |0.64032572017864400|
 
-# Conclusion
+## Conclusion
 
 One of the primary challenges we encountered with this dataset is the pronounced overexpression of certain interactions. This imbalance poses difficulties in effectively predicting them using traditional Neural Networks. Surprisingly, even when exclusively predicting the **HBOND** interaction, the NN achieves remarkably high accuracy. To address this issue, we believe it is crucial to leverage the data and strive for a more balanced dataset. The problem of manipulation the data where limited to the fact that the task give us the first dataset and we have to work with it.
 
@@ -379,14 +378,13 @@ This leads us to the challenging decision of determining the most suitable cours
 
 Furthermore, we attempted to perform a basic training without adding any data and used our model, which found a 5-10% decrease in performances.  This suggests that incorporating more data is an effective approach to enhance the performance of our interaction prediction model.
 
-# Future Work
+## Future Work
 
 A potential direction for future research might involve incorporating a mechanism to "penalize" mispredictions resulting from the overrepresentation of specific features. By adopting this approach, the model would increase its sensitivity to the imbalanced distribution and be motivated to enhance its performance on the underrepresented features. This, in turn, would lead to a more balanced prediction.
 
 To augment the dataset, another strategy could involve using an algorithm based on message passing, like GCN (Graph Convolutional Networks). This algorithm would help capture additional local information around each residue starting from the protein's 3D structure. By utilizing this information, the model can better encode each residue and potentially improve its overall performance.
 
-
-# Images
+## Images
 
 Broadly speaking, in these images, we can see that the general prediction distribution matches the actual classes, indicating a somewhat correct prediction. However, we encounter difficulties due to the concerning unbalanced distribution of true interaction classes
 
