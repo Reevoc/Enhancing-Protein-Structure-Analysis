@@ -4,7 +4,7 @@
 
 The Residue Interaction Network Generator (RING) is a cutting-edge tool in the field of structural biology that has significantly advanced the study of protein structures. By identifying non-covalent interactions at the atomic level, RING allows researchers to delve into the intricate details of residue interactions within protein structures.
 
-One of the primary objectives of RING is to provide a straightforward and intuitive way to visualize these interactions, offering researchers valuable insights into the relationships between different residues in a protein. By processing multi-state structures, including molecular dynamics and structural ensembles, RING generates probabilistic networks and conformational-dependent contact maps. The remarkable aspect of RING is its exceptional speed, as it scales linearly with the size of the input data, ensuring efficient and rapid analysis of protein structures.
+One of the primary objectives of RING is to provide a straightforward and intuitive way to visualize these interactions, offering researchers valuable insights into the relationships between different residues in a protein. By processing multi-state structures, including molecular dynamics and structural ensembles, RING generates probabilistic networks and conformation-dependent contact maps. The remarkable aspect of RING is its exceptional speed, as it scales linearly with the size of the input data, ensuring efficient and rapid analysis of protein structures.
 
 In this project we are going to develop a script that will be able to predict the interactions between residues in a protein structure, given a dataset of protein structures with their corresponding interactions.
 
@@ -21,8 +21,8 @@ In the GitHub repository is provided the `requirements.txt` file which contains 
  [Install conda enviroment](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)  and execute
 
 ```bash
-conda create --name your_new_env_name --file requirements.txt
-conda activate your_new_env_name
+$ conda create --name your_new_env_name --file requirements.txt
+$ conda activate your_new_env_name
 ```
 
 #### Dataset
@@ -37,12 +37,26 @@ Data will be better explained in [[#Dataset]]
 In order to extract the dataset is provided a bash script  to be executed with
 
 ```bash
-./data/unpack.sh
+$ ./data/unpack.sh
 ```
 
 ## Code
 
-## Usage of the script
+The bioinformatics project's source code is organized as follows:
+
+1. **Root Folder:**
+    * `main.py`: This file serves as the entry point for executing the training process.
+    * `configuration.py`: Contains general setup variables that can be modified to adjust the origin data location, neural network training parameters, and other relevant parameters.
+2. **`./src` Folder:**
+    The `./src` folder houses various modules that contribute to different aspects of the project.
+    * `features.py`: This module contains functions useful for generating the feature datasets.
+    * `manage_data.py`: Responsible for managing the datasets, including handling PDB structures, feature files for PDB structures, and constructing datasets for training.
+    * `mkdssp`: binaries required by the Biopython module to generate DSSP features.
+    * `neural_networks.py`: Contains the necessary code for creating TensorFlow models, performing training and evaluation, and predicting interaction types.
+    * `normalization.py`: This module contains functions for normalizing datasets before feeding them into the neural network.
+    * `spilt.py`: Additional utility functions for generating training and test datasets for the neural network.
+
+### Usage of the script
 
 The `main.py` script allows you to train and evaluate different models with various normalization techniques and data options. To run the script, you can use the following command-line arguments:
 
@@ -50,13 +64,23 @@ The `main.py` script allows you to train and evaluate different models with vari
 python3 main.py -m [model] -n [normalization] -d [data_option]
 ```
 
-**Parameters:**
+#### Parameters
 
-* `[model]`: Choose one of the available models: "model_1", "model_2", or "model_3". Each model represents a specific machine learning model or architecture.
-* `[normalization]`: Choose one of the available normalization techniques: "MinMaxScaler" or "StandardScaler". This parameter allows you to preprocess the data before training the models.
-* `[data_option]`: Choose one of the available data options: "eliminate_unclassified" or "unclassified". This option determines how the unclassified data is handled during training and evaluation.
+* `[model]`: Choose one of the available models:
+   Each model represents a specific machine learning model or architecture.
+  * "model_1"
+  * "model_2"
+  * "model_3".
+* `[normalization]`: Choose one of the available normalization techniques:
+  This parameter allows you to preprocess the data before training the models.
+  * "MinMaxScaler"
+  * "StandardScaler".
+* `[data_option]`: Choose one of the available data options
+  This option determines how the unclassified data is handled during training and evaluation.
+  * "eliminate_unclassified" [default]
+  * "unclassified"
 
-**Example:**
+#### Example
 
 ```bash
 python3 main.py -m model_1 -n MinMaxScaler -d eliminate_unclassified
@@ -115,7 +139,8 @@ To improve the accuracy of our predictions regarding interactions between amino 
 
 The first step involved incorporating a new set of data obtained from the DSSP module. To achieve this, we made modifications to the code provided by our professor and then implemented inside the `features.py` file. During this process, we also identified and rectified errors present in the code, which were caused by the use of deprecated libraries. By addressing these issues, we ensured the proper functionality of the code and obtained the necessary data from the DSSP module (which binaries are also provided in `./src/mkdssp`).
 
-To address the absence of PDB files associated with `features_ring` dataset provided, we developed a Python script that automatically downloaded structures for each of the provided interaction files. However,considering the vast quantity, we noticed notable slowdowns in the download speed after a certain amount of consecutive downloads. An alternative solution we found was to use a bash script, `batch-download.sh`, provided directly by RCBS PDB [(link)](https://www.rcsb.org/docs/programmatic-access/batch-downloads-with-shell-script). This script had the same limitation as ours.
+Download Multiple Files from the PDB Archive (<www.rcsb.org>)
+To address the absence of PDB files associated with `features_ring` dataset provided, we developed a Python script that automatically downloaded structures for each of the provided interaction files. However,considering the vast quantity, we noticed notable slowdowns in the download speed after a certain amount of consecutive downloads. An alternative solution we found was to use a bash script, `batch-download.sh`, provided directly by RCSB PDB [(link)](https://www.rcsb.org/docs/programmatic-access/batch-downloads-with-shell-script). This script had the same limitation as ours.
 The most efficient solution we landed on was to download the entire dataset from [Download Multiple Files from the PDB Archive (www.rcsb.org)](https://www.rcsb.org/downloads)
 
 Out custom features are automatically calculated only once at `main.py` execution
@@ -174,15 +199,8 @@ By applying these normalization techniques, the data is prepared in a standardiz
 
 In the field of machine learning, classification tasks involve the categorization of data into predefined classes or labels. Two common types of classification tasks are multilabel classification and multiclass classification. In multilabel classification, each instance can be associated with multiple labels simultaneously, allowing for the presence of more than one label per data point. For example, in our scenario, an interaction can be classified as both "type A" and "type B" simultaneously. On the other hand, multiclass classification assigns each instance to only one label from a set of predefined classes, restricting each data point to a single label.
 
-In our implementation, we have generated and labeled unique type interactions. The task is to infer the label for each interaction between residues, as determined by the DSSP algorithm. Each residue will be assigned one label representing its type or combination of types, but not multiple labels
+In our implementation, we have generated and labeled unique type interactions. The task is to infer the label for each interaction between residues, as determined by the DSSP algorithm. Each residue will be assigned one label representing its type or combination of types, but not multiple labels.
 
-The displayed results obtained during the training of the three chosen neural models are representative of our investigation. We experimented with different normalization techniques and data manipulation options, such as removing unclassified interactions, for a limited number of epochs. This preliminary analysis allows us to determine the best-performing model for our problem, which we will further investigate.
-
-From the tables, it is evident that using the StandardScaler for normalization consistently produces better results compared to the MinMaxScaler. This performance difference is likely due to the StandardScaler's greater resilience to outliers.
-
-Regarding the models, there isn't a definitive winner that stands out. However, model 2 demonstrates superior performance compared to the other models when we exclude the unclassified data. Conversely, when including the unclassified data, model 3 shows better performance than the other models. These observations suggest that the models' effectiveness may be influenced by the presence of unclassified data and the specific data context in each scenario.
-
-Additional information about the distribution of predictions is provided in the appendices.
 
 ### Neural Network Models
 
@@ -192,7 +210,7 @@ We tested multiple neural network models in an attempt to find the best one. Her
 2. A larger model with many layers.
 3. A large model with a low number of layers.
 
-There was no clear victor, but marginal improvements were observed in certain scenarios. The results will be explained in more detail later in [Results](#results).
+There was no clear victor, but marginal improvements were observed in certain scenarios. The results will be explained in more detail later in Results
 
 #### Model1
 
@@ -366,6 +384,7 @@ Furthermore, we attempted to perform a basic training without adding any data an
 A potential direction for future research might involve incorporating a mechanism to "penalize" mispredictions resulting from the overrepresentation of specific features. By adopting this approach, the model would increase its sensitivity to the imbalanced distribution and be motivated to enhance its performance on the underrepresented features. This, in turn, would lead to a more balanced prediction.
 
 To augment the dataset, another strategy could involve using an algorithm based on message passing, like GCN (Graph Convolutional Networks). This algorithm would help capture additional local information around each residue starting from the protein's 3D structure. By utilizing this information, the model can better encode each residue and potentially improve its overall performance.
+
 
 # Images
 
