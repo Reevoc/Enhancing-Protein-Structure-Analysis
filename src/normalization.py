@@ -27,9 +27,9 @@ def normalization_angles(df, scaler):
     return df
 
 
-def normalization_achety(df, scaler):
-    print("\tNormalization achety")
-    column_achety = [
+def normalization_atchley(df, scaler):
+    print("\tNormalization atchley")
+    column_atchley = [
         "s_a1",
         "s_a2",
         "s_a3",
@@ -41,7 +41,7 @@ def normalization_achety(df, scaler):
         "t_a4",
         "t_a5",
     ]
-    df[column_achety] = scaler.fit_transform(df[column_achety])
+    df[column_atchley] = scaler.fit_transform(df[column_atchley])
     return df
 
 
@@ -129,7 +129,7 @@ def normalization_df(df, scale):
             raise ValueError("Invalid scale value")
 
         df = normalization_angles(df, scaler)
-        df = normalization_achety(df, scaler)
+        df = normalization_atchley(df, scaler)
         df = normalization_rsa(df, scaler)
         df = normalization_half_sphere(df, scaler)
         df = normalization_dssp(df, scaler)
