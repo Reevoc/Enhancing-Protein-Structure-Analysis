@@ -40,11 +40,11 @@ def filter_condition(value):
     return True
 
 
-def generate_feature_file(pdb_id):
+def generate_feature_file(pdb_id, path=conf.PATH_PDB, write=True):
     ISERROR = False
     # Load the PDB structure
     print("generating features for", pdb_id)
-    pdb_file = os.path.join(conf.PATH_PDB, f"{pdb_id}.cif")
+    pdb_file = os.path.join(path, f"{pdb_id}.cif")
 
     assert "cif" in pdb_file
     structure = MMCIFParser(QUIET=True).get_structure(pdb_id, pdb_file)
@@ -158,7 +158,8 @@ def generate_feature_file(pdb_id):
 
     output_file = os.path.join(conf.PATH_DSSP_TSV, f"{pdb_id}.tsv")
     print(output_file)
-    with open(output_file, "w+") as f:
-        df.to_csv(f, sep="\t", index=False)
+    if write:
+        with open(output_file, "w+") as f:
+            df.to_csv(f, sep="\t", index=False)
 
-    return None
+    return df

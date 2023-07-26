@@ -10,9 +10,9 @@ import configuration as conf
 from src.features import generate_feature_file
 
 
-def _download_cif(x):
+def download_cif(pdbid, path_pdb=conf.PATH_PDB):
     pdbl = PDBList(obsolete_pdb=os.path.join(conf.PATH_PDB, "obsolete"))
-    pdbl.retrieve_pdb_file(pdb_code=x, file_format="mmCif", pdir=conf.PATH_PDB)
+    pdbl.retrieve_pdb_file(pdb_code=pdbid, file_format="mmCif", pdir=path_pdb)
 
 
 def build_index(path_pdb, path_tsv, path_ring, generate_new=False, update_dssp=False):
@@ -157,7 +157,7 @@ def _import_data(index: dict, delete_unclassified=False) -> dict:
             tsv_dict.update(t)
 
     print(
-        f"length of tsv is {len(list(tsv_dict.keys()))} and ring {len(list(ring_dict.keys()))}"
+        f"\tlength of tsv is {len(list(tsv_dict.keys()))} and ring {len(list(ring_dict.keys()))}"
     )
 
     # Append interactions

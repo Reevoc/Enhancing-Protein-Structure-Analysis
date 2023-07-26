@@ -23,6 +23,12 @@ def parser():
         "-d", "--manipulation", help="dataset manipulation type", required=False
     )
     parser.add_argument("-k", "--kfold", help="kfold", required=False)
+    parser.add_argument(
+        "-o",
+        "--out_name",
+        help="if provided, stores model named like this",
+        required=False,
+    )
 
     args = parser.parse_args()
 
@@ -37,7 +43,17 @@ def parser():
         error.append("Normalization name is required.")
 
     if not args.manipulation:
-        args.manipulation = False
+        args.manipulation = True
+    else:
+        args.manipulation = (
+            True if args.manipulation == "eliminate_unclassified" else False
+        )
+
+    if not args.kfold:
+        args.kfold = False
+
+    if not args.out_name:
+        args.out_name = False
 
     if error:
         parser.print_help()
@@ -46,13 +62,11 @@ def parser():
     return args
 
 
-def main(index, model_name, normalization_mode, remove_unclassified, kfold, f):
-    print(model_name, normalization_mode)
+def main(index, model_name, normalization_mode, remove_unclassified, kfold, f, name):
+    print(model_name, normalization_mode, remove_unclassified)
     df = prepare_data(
         index,
-        remove_unclassified=(
-            True if remove_unclassified == "eliminate_unclassified" else False
-        ),
+        remove_unclassified=remove_unclassified,
     )
 
     df = normalization_df(df, normalization_mode)
@@ -60,7 +74,12 @@ def main(index, model_name, normalization_mode, remove_unclassified, kfold, f):
     if kfold == "kfold":
         neural_networks.kfold_train(df, model_name, f)
     else:
-        neural_networks.train(df, model_name, f)
+        save_model = True if name else False
+        _, _, _, _, model = neural_networks.train(
+            df, model_name, f, save_model=save_model, epochs=30
+        )
+        print(f"Saving model {name}")
+        model.save(f"{name}.h5")
 
 
 if __name__ == "__main__":
@@ -82,8 +101,15 @@ if __name__ == "__main__":
 
         ###### PASSING ARGUMENTS ######
         if len(sys.argv) > 1:
+            print(f"out_name: {args.out_name}")
             main(
-                index, args.model, args.normalization, args.manipulation, args.kfold, f
+                index=index,
+                model_name=args.model,
+                normalization_mode=args.normalization,
+                remove_unclassified=args.manipulation,
+                kfold=args.kfold,
+                f=f,
+                name=args.out_name,
             )
         # END
         ###### DEFAULT ######
@@ -180,7 +206,7 @@ if __name__ == "__main__":
                         dropout_rate=dropout_rate,
                         f=f,
                         balanced=False,
-                        return_model=True,
+                        save_model=True,
                     )
 
                     # Predict

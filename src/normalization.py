@@ -111,13 +111,24 @@ def normalization_interactions(df):
     df["OrgInteraction"] = df["Interaction"]
     label_encoder = LabelEncoder()
     df["Interaction"] = label_encoder.fit_transform(df["Interaction"])
+
+    # write all labels in labelorg.csv
+    with open(f"labelorg.csv", "w") as ff:
+        ff.write("Y\tOrgInteraction\n")
+        for i, j in zip(
+            range(max(df["Interaction"]) + 1),
+            label_encoder.inverse_transform(range(max(df["Interaction"]) + 1)),
+        ):
+            ff.write(f"{i}\t{j}\n")
+
     return df
 
 
-def normalization_df(df, scale):
+def normalization_df(df, scale, infere=False):
     print("Start normalization dataframe")
     df = normalization_category(df)
-    df = normalization_interactions(df)
+    if not infere:
+        df = normalization_interactions(df)
 
     if scale != "no_normalization":
         print(f"\tNormalization using {scale}")

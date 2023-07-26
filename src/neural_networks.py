@@ -125,7 +125,7 @@ def train(
     train_index=None,
     test_index=None,
     percent4test=0.2,
-    return_model=False,
+    save_model=False,
 ):
     print("Start training ")
     X, Y = split.get_dataset(df, balanced=balanced)
@@ -180,7 +180,7 @@ def train(
     if f:
         f.write(f"{accuracy}\t{f1}\t{precision}\t{recall}\n")
 
-    if return_model:
+    if save_model:
         return accuracy, f1, precision, recall, model
     return accuracy, f1, precision, recall
 
@@ -274,3 +274,12 @@ def test_predict(df, model: Sequential, p4test=0.3):  # FIXME
     #                 count_w[k] += 1
     # print("Accuracy", accuracy_score(Y_test, y_pred))
     # print(f"count_t\t{count_t}\ncount_c\t{count_c}\ncount_w\t{count_w}")
+
+
+def infere(df, model):
+    X = split.get_dataset(df, inference=True)
+    y_pred = model.predict(X)
+    # Labels
+    y_pred = np.argmax(y_pred, axis=1)
+
+    return y_pred

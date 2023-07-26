@@ -36,21 +36,22 @@ def drop_useless_column(df):
     return df
 
 
-def create_X(df):
-    X = df.drop(
-        [
-            "pdb_id",
-            "s_ch",
-            "s_resi",
-            "s_ins",
-            "t_ch",
-            "t_resi",
-            "t_ins",
-            "Interaction",
-            "OrgInteraction",
-        ],
-        axis=1,
-    ).copy()
+def create_X(df, inference):
+    column2drop = [
+        "pdb_id",
+        "s_ch",
+        "s_resi",
+        "s_ins",
+        "t_ch",
+        "t_resi",
+        "t_ins",
+        "Interaction",
+        "OrgInteraction",
+    ]
+    if inference:
+        X = df.drop(column2drop[:-2], axis=1).copy()
+    else:
+        X = df.drop(column2drop, axis=1).copy()
     return X.values
 
 
@@ -65,10 +66,14 @@ def create_Y(df):
     return Y
 
 
-def get_dataset(df, balanced=False) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def get_dataset(
+    df, balanced=False, inference=False
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     if balanced:
         df = balance_interaction_types(df)
-    X = create_X(df)
+    X = create_X(df, inference)
+    if inference:
+        return X
 
     Y = create_Y(df)
     return X, Y
