@@ -1,5 +1,7 @@
 # Enhancing Protein Structure Analysis
 
+<p align="center">Matteo Andriolo, Piermarco Giustini </p>
+
 ## Introduction
 
 The Residue Interaction Network Generator (RING) is a cutting-edge tool in the field of structural biology that has significantly advanced the study of protein structures. By identifying non-covalent interactions at the atomic level, RING allows researchers to delve into the intricate details of residue interactions within protein structures.
@@ -21,9 +23,42 @@ In the [GitHub repository (www.github.com)](https://github.com/Reevoc/Enhancing-
  [Install conda enviroment](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)  and execute
 
 ```bash
-conda create --name your_new_env_name --file requirements.txt
-conda activate your_new_env_name
+$ conda create --name your_new_env_name --file requirements.txt
+$ conda activate your_new_env_name
 ```
+
+#### Inference
+
+To just use del model to predict the evaluation you can use the inference.py file with the following command:
+
+- In this first case the model just need a bdb_id of a protein structure and and calculate automatically the features:
+
+  ```bash
+  $ python3 inference.py -p "pdb_id_protein" -o "output_file.out"
+  ```
+
+- In this second case it can be provided a folder with multiple pdb files in **.cif** format the script will calculate the features for each protein structure and then predict the interactions.
+
+  ```bash
+  $ python3 inference.py -m "name_of_the_model" -f "folder_pdb" -o "output_file.out"
+  ```
+
+- Example of usage:
+  
+  ```bash
+  $ python3 inference.py -m eliminate_unclassified.h5 -f data/pdb -o output_file.out
+  ```
+
+  ```bash
+  $ python3 inference.py -m eliminate_unclassified.h5 -p 1b0y -o output_file.out
+  ```
+
+In the output file will be present the interactions predicted for each residue of the protein structure, and the pdb_id and s_resi and t_resi.
+
+| pdb_id | s_resi | t_resi | Prediction |
+|--------|--------|--------|-------------|
+| 1b0y   | 28     |76      | HBOND       |
+| 1b0y   | 28     |76      | HBOND:VDW        |
 
 #### Dataset
 
@@ -37,7 +72,7 @@ Data will be better explained in [[#Dataset]]
 In order to extract the dataset is provided a bash script  to be executed with
 
 ```bash
-./data/unpack.sh
+$ ./data/unpack.sh
 ```
 
 ## Code
@@ -45,8 +80,9 @@ In order to extract the dataset is provided a bash script  to be executed with
 The bioinformatics project's source code is organized as follows:
 
 1. **Root Folder:**
-    * `main.py`: This file serves as the entry point for executing the training process.
+    * `train.py`: This file serves as the entry point for executing the training process.
     * `configuration.py`: Contains general setup variables that can be modified to adjust the origin data location, neural network training parameters, and other relevant parameters.
+    * `study_data.py` File used to plot our data in the report it contains, cells that can be run providing the correct path to the data, to generate the images.
 2. **`./src` Folder:**
     The `./src` folder houses various modules that contribute to different aspects of the project.
     * `features.py`: This module contains functions useful for generating the feature datasets.
@@ -55,13 +91,14 @@ The bioinformatics project's source code is organized as follows:
     * `neural_networks.py`: Contains the necessary code for creating TensorFlow models, performing training and evaluation, and predicting interaction types.
     * `normalization.py`: This module contains functions for normalizing datasets before feeding them into the neural network.
     * `spilt.py`: Additional utility functions for generating training and test datasets for the neural network.
+   
 
 ### Usage of the script
 
-The `main.py` script allows you to train and evaluate different models with various normalization techniques and data options. To run the script, you can use the following command-line arguments:
+The `train.py` script allows you to train and evaluate different models with various normalization techniques and data options. To run the script, you can use the following command-line arguments:
 
 ```bash
-python3 main.py -m [model] -n [normalization] -d [data_option]
+$ python3 train.py -m [model] -n [normalization] -d [data_option]
 ```
 
 #### Parameters
@@ -83,8 +120,8 @@ python3 main.py -m [model] -n [normalization] -d [data_option]
 #### Example
 
 ```bash
-python3 main.py -m model_1 -n MinMaxScaler -d eliminate_unclassified
-python3 main.py -m model_1 -n MinMaxScaler -d unclassified
+$ python3 main.py -m model_1 -n MinMaxScaler -d eliminate_unclassified
+$ python3 main.py -m model_1 -n MinMaxScaler -d unclassified
 # ... (similar commands for other models and combinations)
 ```
 
@@ -139,11 +176,11 @@ To improve the accuracy of our predictions regarding interactions between amino 
 
 The first step involved incorporating a new set of data obtained from the DSSP module. To achieve this, we made modifications to the code provided by our professor and then implemented inside the `features.py` file. During this process, we also identified and rectified errors present in the code, which were caused by the use of deprecated libraries. By addressing these issues, we ensured the proper functionality of the code and obtained the necessary data from the DSSP module (which binaries are also provided in `./src/mkdssp`).
 
-Download Multiple Files from the PDB Archive (<www.rcsb.org>)
+[Download Multiple Files from the PDB Archive (<www.rcsb.org>)](https://www.rcsb.org/downloads)
 To address the absence of PDB files associated with `features_ring` dataset provided, we developed a Python script that automatically downloaded structures for each of the provided interaction files. However,considering the vast quantity, we noticed notable slowdowns in the download speed after a certain amount of consecutive downloads. An alternative solution we found was to use a bash script, `batch-download.sh`, provided directly by RCSB PDB [(link)](https://www.rcsb.org/docs/programmatic-access/batch-downloads-with-shell-script). This script had the same limitation as ours.
-The most efficient solution we landed on was to download the entire dataset from [Download Multiple Files from the PDB Archive (www.rcsb.org)](https://www.rcsb.org/downloads)
+The most efficient solution we landed on was to download the entire dataset from [Download Multiple Files from the PDB Archive (www.rcsb.org)](https://www.rcsb.org/downloads).
 
-Out custom features are automatically calculated only once at `main.py` execution
+Out custom features are automatically calculated only once at `main.py` execution.
 
 ### New Features
 
@@ -332,7 +369,7 @@ From the tables, it is evident that using the StandardScaler for normalization c
 
 Regarding the models, there isn't a definitive winner that stands out. However, model 2 demonstrates superior performance compared to the other models when we exclude the unclassified data. Conversely, when including the unclassified data, model 3 shows better performance than the other models. These observations suggest that the models' effectiveness may be influenced by the presence of unclassified data and the specific data context in each scenario.
 
-Additional information about the distribution of predictions is provided in the appendices for model_2 without "Unclassified" class and model_3 with "Unclassified" class (respectively Figure4 and Figure5).
+Additional information about the distribution of predictions is provided,in the appendix section at the end of the document, for model_2 without "Unclassified" class and for model_3 with "Unclassified" class (respectively Figure4 and Figure5).
 
 ### K-fold
 
@@ -354,7 +391,7 @@ Here are the reported results for model2 using the dataset without the "Unclassi
 | 10    | 0.7745739900084404   |
 | Average| 0.7743575717926624|
 
-Similarly, for model3, keeping the "Unclassified" label
+Similarly, for model3, keeping the "Unclassified" label:
 
 | Index | Accuracy unclassified|
 |-------|----------------------|
@@ -386,7 +423,7 @@ To augment the dataset, another strategy could involve using an algorithm based 
 
 ## Images
 
-Broadly speaking, in these images, we can see that the general prediction distribution matches the actual classes, indicating a somewhat correct prediction. However, we encounter difficulties due to the concerning unbalanced distribution of true interaction classes
+Broadly speaking, in these images, we can see that the general prediction distribution matches the actual classes, indicating a somewhat correct prediction. However, we encounter difficulties due to the concerning unbalanced distribution of true interaction classes.
 
 ![](data/images/CM_NO_unclassified.png)
 
