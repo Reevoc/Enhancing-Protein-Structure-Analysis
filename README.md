@@ -98,7 +98,7 @@ The bioinformatics project's source code is organized as follows:
 The `train.py` script allows you to train and evaluate different models with various normalization techniques and data options. To run the script, you can use the following command-line arguments:
 
 ```bash
-$ python3 train.py -m [model] -n [normalization] -d [data_option]
+$ python3 train.py -m [model] -n [normalization] -d [data_option] -k[kfold]
 ```
 
 #### Parameters
